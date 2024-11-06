@@ -1,0 +1,172 @@
+﻿@inject IMapper Mapper
+@inject IStreetService StreetService
+@inject IStreetDetailService StreetDetailService
+@inject IStoreAddressService StoreAddressService
+@inject SettingsService SettingsService
+
+<div class="p-4 bg-light">
+    <!-- Street Lookup by Zip Code Form -->
+    <h3 class="text-primary mb-4">Consultar Rua pelo CEP</h3>
+    <EditForm Model="_zipCodeModel" OnValidSubmit="HandleSearch">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="alert alert-danger" />
+
+        <div class="mb-3">
+            <InputText id="zipCode" @bind-Value="_zipCodeModel.ZipCode" class="form-control form-control-sm rounded" placeholder="CEP" style="width: 50%;" />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">Pesquisar</button>
+    </EditForm>
+
+    <hr class="my-4" />
+
+    <!-- Add New Street and Address Form -->
+    <h5 class="text-primary">Adicionar Nova Rua e Endereço</h5>
+    <EditForm Model="_streetDetailViewModel" OnValidSubmit="HandleAdd">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="alert alert-danger" />
+
+        <div class="mb-3">
+            <InputText id="streetName" @bind-Value="_streetDetailViewModel.StreetName" class="form-control form-control-sm rounded" placeholder="Nome da Rua" style="width: 50%;" />
+        </div>
+
+        <div class="mb-3">
+            <InputText id="zipCode" @bind-Value="_streetDetailViewModel.Zipcode" class="form-control form-control-sm rounded" placeholder="CEP" style="width: 50%;" />
+        </div>
+
+        <div class="mb-3">
+            <InputText id="neighborhood" @bind-Value="_streetDetailViewModel.NeighborhoodName" class="form-control form-control-sm rounded" placeholder="Bairro" style="width: 50%;" />
+        </div>
+
+        <div class="mb-3">
+            <InputText id="city" @bind-Value="_streetDetailViewModel.CityName" class="form-control form-control-sm rounded" placeholder="Cidade" style="width: 50%;" />
+        </div>
+
+        <div class="mb-3">
+            <InputText id="state" @bind-Value="_streetDetailViewModel.StateName" class="form-control form-control-sm rounded" placeholder="Estado" style="width: 50%;" />
+        </div>
+
+        <div class="mb-3">
+            <InputText id="complement" @bind-Value="_storeAddressModel.Complement" class="form-control form-control-sm rounded" placeholder="Complemento" style="width: 50%;" />
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3 rounded" style="width: 50%;">Adicionar</button>
+    </EditForm>
+
+    @if (_searchAttempted && _streetDetailViewModel == null)
+    {
+        <div class="alert alert-warning text-center mt-4" style="width: 50%;">
+            Nenhuma rua encontrada com o CEP especificado. Você pode inserir os detalhes manualmente para adicionar uma nova rua.
+        </div>
+    }
+
+    <hr />
+
+    <!-- Display and Manage Current Store Address -->
+    @if (_currentStoreAddress != null)
+    {
+        <div class="mt-4">
+            <h5 class="text-primary">Endereço Atual</h5>
+            <p><strong>Complemento:</strong> @_currentStoreAddress.Complement</p>
+            <p><strong>Longitude:</strong> @_currentStoreAddress.Longitude</p>
+            <p><strong>Latitude:</strong> @_currentStoreAddress.Latitude</p>
+
+            <button class="btn btn-warning me-2" @onclick="EditCurrentAddress">Atualizar</button>
+            <button class="btn btn-danger" @onclick="DeleteCurrentAddress">Excluir</button>
+        </div>
+    }
+</div>
+
+@code {
+    private StreetDetailViewModel _streetDetailViewModel = new StreetDetailViewModel(); // For street details
+    private StoreAddressModel _storeAddressModel = new StoreAddressModel(); // For address-specific details
+    private ZipCodeModel _zipCodeModel = new ZipCodeModel();
+    private bool _searchAttempted = false;
+    private StoreAddress? _currentStoreAddress; // To hold the current address for display
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCurrentAddress();
+    }
+
+    private async Task HandleSearch()
+    {
+        _searchAttempted = true;
+        var streetDetailView = await StreetDetailService.GetStreetDetailByZipCodeAsync(_zipCodeModel.ZipCode);
+        _streetDetailViewModel = streetDetailView != null ? Mapper.Map<StreetDetailViewModel>(streetDetailView) : new StreetDetailViewModel();
+    }
+
+    private async Task HandleAdd()
+    {
+        if (_streetDetailViewModel is not null && _storeAddressModel is not null)
+        {
+            // Retrieve StoreId from SettingsService
+            var storeId = SettingsService.appSettings.StoreId;
+
+            // Map and add StoreAddress entity with the retrieved StoreId
+            var newStoreAddress = new StoreAddress
+                {
+                    StoreId = storeId,
+                    StreetId = _streetDetailViewModel.StreetId, // Ensure StreetId is set or default to 0
+                    Complement = _storeAddressModel.Complement,
+                    Longitude = _storeAddressModel.Longitude,
+                    Latitude = _storeAddressModel.Latitude,
+                    CreatedBy = 1,   // Example value; replace with actual user ID
+                    CreatedOn = DateTime.Now,
+                    ModifiedBy = 1,
+                    ModifiedOn = DateTime.Now
+                };
+
+            await StoreAddressService.AddAsync(newStoreAddress);
+
+            // Reload the current address after adding
+            await LoadCurrentAddress();
+
+            // Clear form after adding
+            _streetDetailViewModel = new StreetDetailViewModel();
+            _storeAddressModel = new StoreAddressModel();
+            _zipCodeModel = new ZipCodeModel(); // Reset the search field as well
+            _searchAttempted = false;
+        }
+    }
+
+    private async Task LoadCurrentAddress()
+    {
+        // Retrieve the current address for the store using StoreId from SettingsService
+        var storeId = SettingsService.appSettings.StoreId;
+        _currentStoreAddress = (await StoreAddressService.GetAllAsync())
+            .LastOrDefault(sa => sa.StoreId == storeId); // Assuming the most recent address
+    }
+
+    private void EditCurrentAddress()
+    {
+        if (_currentStoreAddress != null)
+        {
+            // Map the current address to the form fields for editing
+            _storeAddressModel = Mapper.Map<StoreAddressModel>(_currentStoreAddress);
+            _storeAddressModel.StoreId = _currentStoreAddress.StoreId;
+            _storeAddressModel.StreetId = _currentStoreAddress.StreetId;
+            _storeAddressModel.Complement = _currentStoreAddress.Complement;
+            _storeAddressModel.Longitude = _currentStoreAddress.Longitude;
+            _storeAddressModel.Latitude = _currentStoreAddress.Latitude;
+            // _storeAddressModel.CreatedBy = _currentStoreAddress.CreatedBy;
+            // _storeAddressModel.CreatedOn = _currentStoreAddress.CreatedOn;
+            // _storeAddressModel.ModifiedBy = _currentStoreAddress.ModifiedBy;
+            // _storeAddressModel.ModifiedOn = DateTime.Now;
+        }
+    }
+
+    private async Task DeleteCurrentAddress()
+    {
+        if (_currentStoreAddress != null)
+        {
+            await StoreAddressService.DeleteAsync(_currentStoreAddress.StoreAddressId);
+            _currentStoreAddress = null; // Clear the current address after deletion
+        }
+    }
+
+    private class ZipCodeModel
+    {
+        public string ZipCode { get; set; } = string.Empty;
+    }
+}

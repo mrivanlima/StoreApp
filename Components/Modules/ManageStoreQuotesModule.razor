@@ -1,0 +1,101 @@
+﻿@page "/Orcamentos"
+@inject IStoreQuoteService StoreQuoteService
+@inject IQuoteService QuoteService
+@inject SettingsService SettingsService
+@inject IMapper Mapper
+
+<h3>Quotes for Store @storeId</h3>
+
+@if (quotes == null)
+{
+    <p>Loading...</p>
+}
+else if (!quotes.Any())
+{
+    <p>No quotes found for this store.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Quote ID</th>
+                <th>User ID</th>
+                <th>Neighborhood ID</th>
+                <th>Is Expired</th>
+                <th>Is Fulfilled</th>
+                <th>Created On</th>
+                <th>Expires On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quote in quotes)
+            {
+                <tr>
+                    <td>@quote.QuoteId</td>
+                    <td>@quote.UserId</td>
+                    <td>@quote.NeighborhoodId</td>
+                    <td>@quote.IsExpired</td>
+                    <td>@quote.IsFullfiled</td>
+                    <td>@quote.CreatedOn.ToString("MM/dd/yyyy")</td>
+                    <td>@quote.ExpiresOn.ToString("MM/dd/yyyy")</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ViewQuoteDetails(quote.QuoteId)">View</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (selectedQuote != null)
+{
+    <div class="quote-details">
+        <h4>Quote Details</h4>
+        <p><strong>Quote ID:</strong> @selectedQuote.QuoteId</p>
+        <p><strong>User ID:</strong> @selectedQuote.UserId</p>
+        <p><strong>Neighborhood ID:</strong> @selectedQuote.NeighborhoodId</p>
+        <p><strong>Is Expired:</strong> @selectedQuote.IsExpired</p>
+        <p><strong>Is Fulfilled:</strong> @selectedQuote.IsFullfiled</p>
+        <p><strong>Created On:</strong> @selectedQuote.CreatedOn.ToString("MM/dd/yyyy")</p>
+        <p><strong>Expires On:</strong> @selectedQuote.ExpiresOn.ToString("MM/dd/yyyy")</p>
+    </div>
+}
+
+@code {
+    private int storeId;
+    private IEnumerable<QuoteModel> quotes;
+    private QuoteModel selectedQuote;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Retrieve the store ID from SettingsService
+        storeId = SettingsService.appSettings.StoreId;
+
+        // Get store quotes by StoreId
+        var storeQuotes = await StoreQuoteService.GetQuoteByStoreIdAsync(storeId);
+
+        // Get the detailed quote information for each StoreQuote and map it to QuoteModel
+        var quoteList = new List<QuoteModel>();
+        foreach (var storeQuote in storeQuotes)
+        {
+            var quote = await QuoteService.GetByIdAsync((int)storeQuote.QuoteId);
+            if (quote != null)
+            {
+                var quoteModel = Mapper.Map<QuoteModel>(quote);
+                quoteList.Add(quoteModel);
+            }
+        }
+        quotes = quoteList;
+    }
+
+    private async Task ViewQuoteDetails(int quoteId)
+    {
+        var quote = await QuoteService.GetByIdAsync(quoteId);
+        if (quote != null)
+        {
+            selectedQuote = Mapper.Map<QuoteModel>(quote);
+        }
+    }
+}

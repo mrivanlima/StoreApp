@@ -1,0 +1,137 @@
+﻿@page "/Inscricao-Bairro"
+@inject IStoreNeighborhoodSubscriptionService SubscriptionService
+@inject IStoreService StoreService
+@inject INeighborhoodService NeighborhoodService
+@inject IMapper Mapper
+
+<h3 class="text-primary mb-4">Manage Store Neighborhood Subscriptions</h3>
+
+<!-- Form to Add or Update Store Neighborhood Subscription -->
+<EditForm Model="_subscriptionModel" OnValidSubmit="HandleSave">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <label class="form-label">Store</label>
+        <select class="form-select" @bind="_subscriptionModel.StoreId">
+            <option value="">Select Store</option>
+            @foreach (var store in _stores)
+            {
+                <option value="@store.StoreId">@store.StoreName</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Neighborhood</label>
+        <select class="form-select" @bind="_subscriptionModel.NeighborhoodId">
+            <option value="">Select Neighborhood</option>
+            @foreach (var neighborhood in _neighborhoods)
+            {
+                <option value="@neighborhood.NeighborhoodId">@neighborhood.NeighborhoodName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox @bind-Value="_subscriptionModel.IsActive" class="form-check-input" />
+        <label class="form-check-label">Is Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@(_subscriptionModel.StoreNeighborhoodSubscriptionId == 0 ? "Add Subscription" : "Update Subscription")</button>
+    <button type="button" class="btn btn-secondary mt-3 ms-2" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+<hr />
+
+<!-- List of Store Neighborhood Subscriptions -->
+<h4 class="mt-4">Subscriptions List</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Store Name</th>
+            <th>Neighborhood Name</th>
+            <th>Is Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subscription in _subscriptions)
+        {
+            <tr>
+                <td>@_stores.FirstOrDefault(s => s.StoreId == subscription.StoreId)?.StoreName</td>
+                <td>@_neighborhoods.FirstOrDefault(n => n.NeighborhoodId == subscription.NeighborhoodId)?.NeighborhoodName</td>
+                <td>@(subscription.IsActive ? "Yes" : "No")</td>
+                <td>
+                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditSubscription(subscription)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteSubscription(subscription.StoreNeighborhoodSubscriptionId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private StoreNeighborhoodSubscriptionModel _subscriptionModel = new StoreNeighborhoodSubscriptionModel();
+    private List<StoreNeighborhoodSubscriptionModel> _subscriptions = new List<StoreNeighborhoodSubscriptionModel>();
+    private List<StoreModel> _stores = new List<StoreModel>();
+    private List<NeighborhoodModel> _neighborhoods = new List<NeighborhoodModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStores();
+        await LoadNeighborhoods();
+        await LoadSubscriptions();
+    }
+
+    private async Task LoadStores()
+    {
+        var stores = await StoreService.GetAllAsync();
+        _stores = Mapper.Map<List<StoreModel>>(stores);
+    }
+
+    private async Task LoadNeighborhoods()
+    {
+        var neighborhoods = await NeighborhoodService.GetAllAsync();
+        _neighborhoods = Mapper.Map<List<NeighborhoodModel>>(neighborhoods);
+    }
+
+    private async Task LoadSubscriptions()
+    {
+        var subscriptions = await SubscriptionService.GetAllAsync();
+        _subscriptions = Mapper.Map<List<StoreNeighborhoodSubscriptionModel>>(subscriptions);
+    }
+
+    private async Task HandleSave()
+    {
+        if (_subscriptionModel.StoreNeighborhoodSubscriptionId == 0)
+        {
+            var newSubscription = Mapper.Map<StoreNeighborhoodSubscription>(_subscriptionModel);
+            await SubscriptionService.AddAsync(newSubscription);
+        }
+        else
+        {
+            var updatedSubscription = Mapper.Map<StoreNeighborhoodSubscription>(_subscriptionModel);
+            await SubscriptionService.UpdateAsync(updatedSubscription);
+        }
+
+        await LoadSubscriptions();
+        ClearForm();
+    }
+
+    private void EditSubscription(StoreNeighborhoodSubscriptionModel subscription)
+    {
+        _subscriptionModel = Mapper.Map<StoreNeighborhoodSubscriptionModel>(subscription);
+    }
+
+    private async Task DeleteSubscription(int subscriptionId)
+    {
+        await SubscriptionService.DeleteAsync(subscriptionId);
+        await LoadSubscriptions();
+    }
+
+    private void ClearForm()
+    {
+        _subscriptionModel = new StoreNeighborhoodSubscriptionModel();
+    }
+}

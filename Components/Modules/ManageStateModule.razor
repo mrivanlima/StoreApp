@@ -1,0 +1,117 @@
+﻿@page "/Estados"
+@inject IStateService StateService
+@inject IMapper Mapper
+
+<h3 class="text-primary mb-4">Manage Brazilian States</h3>
+
+<!-- Form to Add or Update State -->
+<EditForm Model="_stateModel" OnValidSubmit="HandleSave">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <label class="form-label">State Name</label>
+        <InputText @bind-Value="_stateModel.StateName" class="form-control" placeholder="Enter State Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">State UF</label>
+        <InputText @bind-Value="_stateModel.StateUf" class="form-control" placeholder="Enter State UF (e.g., SP)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">State Name ASCII</label>
+        <InputText @bind-Value="_stateModel.StateNameAscii" class="form-control" placeholder="Enter ASCII Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Longitude</label>
+        <InputNumber @bind-Value="_stateModel.Longitude" class="form-control" placeholder="Enter Longitude" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Latitude</label>
+        <InputNumber @bind-Value="_stateModel.Latitude" class="form-control" placeholder="Enter Latitude" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@(_stateModel.StateId == 0 ? "Add State" : "Update State")</button>
+    <button type="button" class="btn btn-secondary mt-3 ms-2" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+<hr />
+
+<!-- List of States -->
+<h4 class="mt-4">State List</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>State Name</th>
+            <th>UF</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var state in _states)
+        {
+            <tr>
+                <td>@state.StateName</td>
+                <td>@state.StateUf</td>
+                <td>
+                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditState(state)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteState(state.StateId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private StateModel _stateModel = new StateModel(); // Model for the form
+    private List<StateModel> _states = new List<StateModel>(); // List of states
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStates();
+    }
+
+    private async Task LoadStates()
+    {
+        // Fetch states from service and map them to StateModel list
+        var states = await StateService.GetAllAsync();
+        _states = Mapper.Map<List<StateModel>>(states);
+    }
+
+    private async Task HandleSave()
+    {
+        if (_stateModel.StateId == 0)
+        {
+            // Add new state
+            var newState = Mapper.Map<State>(_stateModel);
+            await StateService.AddAsync(newState);
+        }
+        else
+        {
+            // Update existing state
+            var updatedState = Mapper.Map<State>(_stateModel);
+            await StateService.UpdateAsync(updatedState);
+        }
+
+        // Reload the states list and clear the form
+        await LoadStates();
+        ClearForm();
+    }
+
+    private void EditState(StateModel state)
+    {
+        // Map the selected StateModel to StateModel for editing
+        _stateModel = Mapper.Map<StateModel>(state);
+    }
+
+    private async Task DeleteState(int stateId)
+    {
+        await StateService.DeleteAsync(stateId);
+        await LoadStates(); // Refresh the list after deletion
+    }
+
+    private void ClearForm()
+    {
+        // Reset the form model
+        _stateModel = new StateModel();
+    }
+}

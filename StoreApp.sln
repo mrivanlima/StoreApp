@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreApp", "StoreApp.csproj", "{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Economizze.Library", "..\..\API\Economizze.Library\Economizze.Library.csproj", "{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {30C6FFBE-B050-4033-A035-FD09F6C246EE}
+	EndGlobalSection
+EndGlobal

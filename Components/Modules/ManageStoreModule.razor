@@ -1,0 +1,108 @@
+﻿@inject SettingsService SettingsService
+@inject NavigationManager Navigation
+@inject IStoreService StoreService
+@inject IMapper Mapper
+
+<div class="p-4 bg-light">
+    <h3 class="text-primary mb-4">Adicionar Loja</h3>
+
+    <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="alert alert-danger" />
+
+        <!-- Store ID (Hidden) -->
+        <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
+
+        <div class="mb-3">
+            <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da loja" style="width: 50%;" />
+        </div>
+
+        <div class="mb-3">
+            <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
+        </div>
+
+        <!-- Store Address ID (Hidden) -->
+        <InputNumber id="storeAddressId" @bind-Value="_storeModel.StoreAddressId" style="display: none;" />
+
+        <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
+            @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
+        </button>
+    </EditForm>
+
+    @if (_createdStore != null)
+    {
+            <div class="mt-5">
+                <h4 class="text-primary">Loja Criada</h4>
+                <p><strong>Licença:</strong> (@_createdStore.StoreId) @_createdStore.StoreUniqueId</p>
+                <p><strong>Nome da loja:</strong> @_createdStore.StoreName</p>
+                <p><strong>CNPJ:</strong> @_createdStore.Cnpj</p>
+
+                <button class="btn btn-warning mt-2 me-2" @onclick="LoadStoreForEdit">Editar</button>
+                <button class="btn btn-danger mt-2" @onclick="DeleteStore">Excluir</button>
+            </div>
+    }
+</div>
+
+@code {
+    private StoreModel _storeModel = new StoreModel();
+    private Store? _createdStore;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load the store information if it exists
+        await LoadStore();
+    }
+
+    private async Task LoadStore()
+    {
+        var storeId = SettingsService.appSettings.StoreId;
+        _createdStore = await StoreService.GetByIdAsync(storeId);
+        if (_createdStore != null)
+        {
+            _storeModel = Mapper.Map<StoreModel>(_createdStore);
+        }
+    }
+
+    private async Task HandleSaveStore()
+    {
+        var storeEntity = Mapper.Map<Store>(_storeModel);
+
+        if (_storeModel.StoreId == 0)
+        {
+            // Add new store
+            await StoreService.AddAsync(storeEntity);
+        }
+        else
+        {
+            // Update existing store
+            await StoreService.UpdateAsync(storeEntity);
+        }
+
+        // Refresh the created store display
+        _createdStore = storeEntity;
+
+        // Reset the form model
+        _storeModel = new StoreModel();
+    }
+
+    private void LoadStoreForEdit()
+    {
+        // Load store details into the form for editing
+        if (_createdStore != null)
+        {
+            _storeModel = Mapper.Map<StoreModel>(_createdStore);
+        }
+    }
+
+    private async Task DeleteStore()
+    {
+        if (_createdStore != null)
+        {
+            await StoreService.DeleteAsync(_createdStore.StoreId);
+            _createdStore = null;
+
+            // Clear the form after deletion
+            _storeModel = new StoreModel();
+        }
+    }
+}

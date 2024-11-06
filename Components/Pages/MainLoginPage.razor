@@ -1,0 +1,58 @@
+﻿@page "/MainLogin"
+@inject IUserLoginService UserLoginService
+@inject NavigationManager Navigation
+@inject IMapper Mapper
+
+<div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="card p-4" style="width: 300px;">
+        <h3 class="text-center">Login</h3>
+
+        <EditForm Model="_userLoginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <InputText id="username" @bind-Value="_userLoginModel.Username" class="form-control form-control-sm" />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <InputText id="password" @bind-Value="_userLoginModel.PasswordHash" type="password" class="form-control form-control-sm" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(_loginMessage))
+        {
+            <div class="alert alert-danger mt-3 text-center">@_loginMessage</div>
+        }
+    </div>
+</div>
+
+@code {
+    private UserLoginModel _userLoginModel = new UserLoginModel();
+    private string? _loginMessage;
+
+    private async Task HandleLogin()
+    {
+        // Map UserLoginModel to UserLogin
+        var userLogin = Mapper.Map<UserLogin>(_userLoginModel);
+
+        // Fetch user from the service using the mapped UserLogin object's username
+        var user = await UserLoginService.GetByUserNameAsync(userLogin);
+
+        // Check if user exists and if the password matches
+        if (user != null && user.PasswordHash == userLogin.PasswordHash)
+        {
+            // Successful login
+            Navigation.NavigateTo("Settings"); // Redirect to a dashboard or home page
+        }
+        else
+        {
+            // Display an error message
+            _loginMessage = "Invalid username or password.";
+        }
+    }
+}

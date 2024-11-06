@@ -1,0 +1,119 @@
+﻿@inject IMapper Mapper
+@inject SettingsService SettingsService
+@inject NavigationManager NavigationManager
+@inject IStorePhoneService StorePhoneService
+
+<h3 class="text-primary mb-4">Manage Store Phones</h3>
+
+<!-- Add / Update StorePhone Form -->
+<EditForm Model="StorePhoneModel" OnValidSubmit="HandleSave">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <InputText @bind-Value="StorePhoneModel.CountryCode" class="form-control form-control-sm rounded" placeholder="Country Code" style="width: 50%;" />
+    </div>
+
+    <div class="mb-3">
+        <InputText @bind-Value="StorePhoneModel.StateCode" class="form-control form-control-sm rounded" placeholder="State Code" style="width: 50%;" />
+    </div>
+
+    <div class="mb-3">
+        <InputText @bind-Value="StorePhoneModel.PhoneNumber" class="form-control form-control-sm rounded" placeholder="Phone Number" style="width: 50%;" />
+    </div>
+
+    <div class="form-check mb-2">
+        <InputCheckbox @bind-Value="StorePhoneModel.IsMain" class="form-check-input" />
+        <label class="form-check-label">Is Main</label>
+    </div>
+
+    <div class="form-check mb-2">
+        <InputCheckbox @bind-Value="StorePhoneModel.IsActive" class="form-check-input" />
+        <label class="form-check-label">Is Active</label>
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox @bind-Value="StorePhoneModel.IsWhatsApp" class="form-check-input" />
+        <label class="form-check-label">Is WhatsApp</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
+        @(StorePhoneModel.StorePhoneId == 0 ? "Add Phone" : "Update Phone")
+    </button>
+</EditForm>
+
+<hr />
+
+<!-- List of Store Phones -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Country Code</th>
+            <th>State Code</th>
+            <th>Phone Number</th>
+            <th>Main</th>
+            <th>Active</th>
+            <th>WhatsApp</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var phone in StorePhones)
+        {
+            <tr>
+                <td>@phone.CountryCode</td>
+                <td>@phone.StateCode</td>
+                <td>@phone.PhoneNumber</td>
+                <td>@(phone.IsMain ? "Yes" : "No")</td>
+                <td>@(phone.IsActive ? "Yes" : "No")</td>
+                <td>@(phone.IsWhatsApp ? "Yes" : "No")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-2" @onclick="() => EditStorePhone(phone)">Edit</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteStorePhone(phone.StorePhoneId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private StorePhoneModel StorePhoneModel = new StorePhoneModel(); // For Add / Update
+    private List<StorePhone> StorePhones = new List<StorePhone>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
+    }
+
+    private async Task HandleSave()
+    {
+        if (StorePhoneModel.StorePhoneId == 0)
+        {
+            // Add new StorePhone
+            var storePhone = Mapper.Map<StorePhone>(StorePhoneModel);
+            await StorePhoneService.AddAsync(storePhone);
+        }
+        else
+        {
+            // Update existing StorePhone
+            var storePhone = Mapper.Map<StorePhone>(StorePhoneModel);
+            await StorePhoneService.UpdateAsync(storePhone);
+        }
+
+        // Refresh list and reset form
+        StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
+        StorePhoneModel = new StorePhoneModel();
+    }
+
+    private void EditStorePhone(StorePhone phone)
+    {
+        // Map the StorePhone to StorePhoneModel for editing
+        StorePhoneModel = Mapper.Map<StorePhoneModel>(phone);
+    }
+
+    private async Task DeleteStorePhone(int id)
+    {
+        await StorePhoneService.DeleteAsync(id);
+        StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
+    }
+}

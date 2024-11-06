@@ -1,0 +1,122 @@
+﻿@page "/Prescricao"
+@inject IPrescriptionService PrescriptionService
+@inject IMapper Mapper
+
+<h3 class="text-primary mb-4">Manage Prescriptions</h3>
+
+<!-- Form to Add or Update Prescription -->
+<EditForm Model="newPrescription" OnValidSubmit="AddOrUpdatePrescription">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <label class="form-label">Quote ID</label>
+        <InputNumber @bind-Value="newPrescription.QuoteId" class="form-control" placeholder="Enter Quote ID" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prescription URL</label>
+        <InputText @bind-Value="newPrescription.PrescriptionUrl" class="form-control" placeholder="Enter URL" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Created By</label>
+        <InputNumber @bind-Value="newPrescription.CreatedBy" class="form-control" placeholder="Enter Created By" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Facility ID</label>
+        <InputNumber @bind-Value="newPrescription.FacilityId" class="form-control" placeholder="Enter Facility ID" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Professional ID</label>
+        <InputNumber @bind-Value="newPrescription.ProfessionalId" class="form-control" placeholder="Enter Professional ID" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@((isEditing) ? "Update Prescription" : "Add Prescription")</button>
+    <button type="button" class="btn btn-secondary mt-3 ms-2" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+<hr />
+
+<!-- List of Prescriptions -->
+<h4 class="mt-4">Prescription List</h4>
+<div class="prescription-list">
+    @foreach (var prescription in prescriptions)
+    {
+        <div class="prescription-card border p-3 mb-3 rounded">
+            <img src="@prescription.PrescriptionUrl" alt="Prescription Image" class="prescription-image mb-2" />
+            <div class="prescription-details">
+                <p><strong>Prescription ID:</strong> @prescription.PrescriptionId</p>
+                <p><strong>Quote ID:</strong> @prescription.QuoteId</p>
+                <p><strong>Created By:</strong> @prescription.CreatedBy</p>
+                <p><strong>Facility ID:</strong> @prescription.FacilityId</p>
+                <p><strong>Professional ID:</strong> @prescription.ProfessionalId</p>
+                <p><strong>Created On:</strong> @prescription.CreatedOn.ToString("MM/dd/yyyy")</p>
+                <p><strong>Modified On:</strong> @prescription.ModifiedOn.ToString("MM/dd/yyyy")</p>
+
+                <button class="btn btn-warning btn-sm me-2" @onclick="() => EditPrescription(prescription)">Edit</button>
+                <button class="btn btn-danger btn-sm" @onclick="() => DeletePrescription(prescription.PrescriptionId)">Delete</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private IEnumerable<PrescriptionModel> prescriptions;
+    private PrescriptionModel newPrescription = new PrescriptionModel { CreatedOn = DateTime.Now, ModifiedOn = DateTime.Now };
+    private PrescriptionModel? editablePrescription;
+    private bool isEditing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPrescriptions();
+    }
+
+    private async Task LoadPrescriptions()
+    {
+        var prescriptionEntities = await PrescriptionService.GetAllAsync();
+        prescriptions = Mapper.Map<IEnumerable<PrescriptionModel>>(prescriptionEntities);
+    }
+
+    private async Task AddOrUpdatePrescription()
+    {
+        var prescriptionEntity = Mapper.Map<Prescription>(newPrescription);
+
+        if (isEditing)
+        {
+            // Update existing prescription
+            prescriptionEntity.PrescriptionId = editablePrescription!.PrescriptionId;
+            prescriptionEntity.ModifiedOn = DateTime.Now;
+            await PrescriptionService.UpdateAsync(prescriptionEntity);
+        }
+        else
+        {
+            // Add new prescription
+            prescriptionEntity.PrescriptionId = prescriptions.Any() ? prescriptions.Max(p => p.PrescriptionId) + 1 : 1;
+            prescriptionEntity.CreatedOn = DateTime.Now;
+            prescriptionEntity.ModifiedOn = DateTime.Now;
+            await PrescriptionService.AddAsync(prescriptionEntity);
+        }
+
+        ClearForm();
+        await LoadPrescriptions();
+    }
+
+    private void EditPrescription(PrescriptionModel prescription)
+    {
+        editablePrescription = prescription;
+        newPrescription = Mapper.Map<PrescriptionModel>(prescription);
+        isEditing = true;
+    }
+
+    private async Task DeletePrescription(long prescriptionId)
+    {
+        await PrescriptionService.DeleteAsync((int)prescriptionId);
+        await LoadPrescriptions();
+    }
+
+    private void ClearForm()
+    {
+        newPrescription = new PrescriptionModel { CreatedOn = DateTime.Now, ModifiedOn = DateTime.Now };
+        editablePrescription = null;
+        isEditing = false;
+    }
+}

@@ -1,0 +1,62 @@
+﻿@page "/Store"
+
+<h3 class="text-primary mb-4">Store Management</h3>
+
+<!-- Buttons to show each module -->
+<div class="mb-4">
+    <button class="btn btn-primary me-2" @onclick="ToggleCreateStore">Add Store</button>
+    <button class="btn btn-secondary me-2" @onclick="ToggleSearchZipCode">Search Zip Code</button>
+    <button class="btn btn-success" @onclick="ToggleCreateStorePhone">Add Store Phone</button>
+</div>
+
+<!-- Conditionally render each component based on the boolean flags -->
+@if (showCreateStore)
+{
+    <ManageStoreModule />
+}
+
+@if (showSearchZipCode)
+{
+    <SearchZipCodeModule />
+}
+
+@if (showCreateStorePhone)
+{
+    <ManageStorePhoneModule />
+}
+
+@code {
+    private bool showCreateStore = false;
+    private bool showSearchZipCode = false;
+    private bool showCreateStorePhone = false;
+
+    private void ToggleCreateStore()
+    {
+        showCreateStore = !showCreateStore;
+        if (showCreateStore)
+        {
+            showSearchZipCode = false;
+            showCreateStorePhone = false;
+        }
+    }
+
+    private void ToggleSearchZipCode()
+    {
+        showSearchZipCode = !showSearchZipCode;
+        if (showSearchZipCode)
+        {
+            showCreateStore = false;
+            showCreateStorePhone = false;
+        }
+    }
+
+    private void ToggleCreateStorePhone()
+    {
+        showCreateStorePhone = !showCreateStorePhone;
+        if (showCreateStorePhone)
+        {
+            showCreateStore = false;
+            showSearchZipCode = false;
+        }
+    }
+}

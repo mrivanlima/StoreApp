@@ -1,0 +1,155 @@
+﻿@page "/Cidades"
+@inject ICityService CityService
+@inject IStateService StateService
+@inject IMapper Mapper
+
+<h3 class="text-primary mb-4">Manage Cities</h3>
+
+<!-- Form to Add or Update City -->
+<EditForm Model="_cityModel" OnValidSubmit="HandleSave">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <label class="form-label">City Name</label>
+        <InputText @bind-Value="_cityModel.CityName" class="form-control" placeholder="Enter City Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">City Name ASCII</label>
+        <InputText @bind-Value="_cityModel.CityNameAscii" class="form-control" placeholder="Enter ASCII Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Longitude</label>
+        <InputNumber @bind-Value="_cityModel.Longitude" class="form-control" placeholder="Enter Longitude" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Latitude</label>
+        <InputNumber @bind-Value="_cityModel.Latitude" class="form-control" placeholder="Enter Latitude" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">State</label>
+        <select class="form-select" @bind="_cityModel.StateId">
+            <option value="">Select State</option>
+            @foreach (var state in _states)
+            {
+                <option value="@state.StateId">@state.StateName</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@(_cityModel.CityId == 0 ? "Add City" : "Update City")</button>
+    <button type="button" class="btn btn-secondary mt-3 ms-2" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+<hr />
+
+<!-- State Dropdown for Filtering Cities -->
+<div class="mb-3">
+    <label class="form-label">Filter by State</label>
+    <select class="form-select" @bind="SelectedStateId" @bind:event="onchange">
+        <option value="">All States</option>
+        @foreach (var state in _states)
+        {
+            <option value="@state.StateId">@state.StateName</option>
+        }
+    </select>
+</div>
+
+<!-- List of Cities -->
+<h4 class="mt-4">City List</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>City Name</th>
+            <th>State</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var city in _filteredCities)
+        {
+            <tr>
+                <td>@city.CityName</td>
+                <td>@_states.FirstOrDefault(s => s.StateId == city.StateId)?.StateName</td>
+                <td>
+                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditCity(city)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteCity(city.CityId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private CityModel _cityModel = new CityModel(); // Model for the form
+    private List<CityModel> _cities = new List<CityModel>(); // List of all cities
+    private List<CityModel> _filteredCities = new List<CityModel>(); // List of cities to display based on selected state
+    private List<StateModel> _states = new List<StateModel>(); // List of states for dropdown
+    private short? SelectedStateId { get; set; } // Selected state ID for filtering cities
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStates();
+        await LoadCities();
+    }
+
+    private async Task LoadCities()
+    {
+        var cities = await CityService.GetAllAsync();
+        _cities = Mapper.Map<List<CityModel>>(cities);
+
+        // Filter cities based on selected state
+        FilterCities();
+    }
+
+    private async Task LoadStates()
+    {
+        var states = await StateService.GetAllAsync();
+        _states = Mapper.Map<List<StateModel>>(states);
+    }
+
+    private void FilterCities()
+    {
+        _filteredCities = SelectedStateId.HasValue
+            ? _cities.Where(city => city.StateId == SelectedStateId).ToList()
+            : _cities.ToList();
+    }
+
+    private async Task HandleSave()
+    {
+        if (_cityModel.CityId == 0)
+        {
+            // Add new city
+            var newCity = Mapper.Map<City>(_cityModel);
+            await CityService.AddAsync(newCity);
+        }
+        else
+        {
+            // Update existing city
+            var updatedCity = Mapper.Map<City>(_cityModel);
+            await CityService.UpdateAsync(updatedCity);
+        }
+
+        // Reload the city list and clear the form
+        await LoadCities();
+        ClearForm();
+    }
+
+    private void EditCity(CityModel city)
+    {
+        // Map the selected CityModel to _cityModel for editing
+        _cityModel = Mapper.Map<CityModel>(city);
+    }
+
+    private async Task DeleteCity(int cityId)
+    {
+        await CityService.DeleteAsync(cityId);
+        await LoadCities(); // Refresh the list after deletion
+    }
+
+    private void ClearForm()
+    {
+        // Reset the form model
+        _cityModel = new CityModel();
+    }
+}

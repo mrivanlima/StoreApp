@@ -1,0 +1,176 @@
+﻿@page "/Inscricao-Cidade"
+@inject ICityService CityService
+@inject IStoreService StoreService
+@inject IStoreCitySubscriptionService StoreCitySubscriptionService
+
+<h3 class="text-primary mb-4">Manage Store City Subscriptions</h3>
+
+<!-- Form to Add or Update StoreCitySubscription -->
+<EditForm Model="_subscriptionModel" OnValidSubmit="HandleSave">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <label class="form-label">Store</label>
+        <select class="form-select" @bind="_subscriptionModel.StoreId">
+            <option value="">Select Store</option>
+            @foreach (var store in _stores)
+            {
+                <option value="@store.StoreId">@store.StoreName</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">City</label>
+        <select class="form-select" @bind="_subscriptionModel.CityId">
+            <option value="">Select City</option>
+            @foreach (var city in _cities)
+            {
+                <option value="@city.CityId">@city.CityName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox @bind-Value="_subscriptionModel.IsActive" class="form-check-input" />
+        <label class="form-check-label">Is Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@(_subscriptionModel.StoreCitySubscriptionId == 0 ? "Add Subscription" : "Update Subscription")</button>
+    <button type="button" class="btn btn-secondary mt-3 ms-2" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+<hr />
+
+<!-- List of Store City Subscriptions -->
+<h4 class="mt-4">Subscription List</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Store</th>
+            <th>City</th>
+            <th>Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subscription in _subscriptions)
+        {
+            <tr>
+                <td>@_stores.FirstOrDefault(s => s.StoreId == subscription.StoreId)?.StoreName</td>
+                <td>@_cities.FirstOrDefault(c => c.CityId == subscription.CityId)?.CityName</td>
+                <td>@(subscription.IsActive ? "Yes" : "No")</td>
+                <td>
+                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditSubscription(subscription)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteSubscription(subscription.StoreCitySubscriptionId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private StoreCitySubscriptionModel _subscriptionModel = new StoreCitySubscriptionModel(); // Model for the form
+    private List<StoreCitySubscriptionModel> _subscriptions = new List<StoreCitySubscriptionModel>(); // List of subscriptions
+    private List<CityModel> _cities = new List<CityModel>(); // List of cities for dropdown
+    private List<StoreModel> _stores = new List<StoreModel>(); // List of stores for dropdown
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStores();
+        await LoadCities();
+        await LoadSubscriptions();
+    }
+
+    private async Task LoadStores()
+    {
+        var stores = await StoreService.GetAllAsync();
+        _stores = stores.Select(store => new StoreModel
+            {
+                StoreId = store.StoreId,
+                StoreName = store.StoreName
+            }).ToList();
+    }
+
+    private async Task LoadCities()
+    {
+        var cities = await CityService.GetAllAsync();
+        _cities = cities.Select(city => new CityModel
+            {
+                CityId = city.CityId,
+                CityName = city.CityName
+            }).ToList();
+    }
+
+    private async Task LoadSubscriptions()
+    {
+        var subscriptions = await StoreCitySubscriptionService.GetAllAsync();
+        _subscriptions = subscriptions.Select(sub => new StoreCitySubscriptionModel
+            {
+                StoreCitySubscriptionId = sub.StoreCitySubscriptionId,
+                StoreId = sub.StoreId,
+                CityId = sub.CityId,
+                IsActive = sub.IsActive,
+                CreatedBy = sub.CreatedBy,
+                CreatedOn = sub.CreatedOn,
+                ModifiedBy = sub.ModifiedBy,
+                ModifiedOn = sub.ModifiedOn
+            }).ToList();
+    }
+
+    private async Task HandleSave()
+    {
+        if (_subscriptionModel.StoreCitySubscriptionId == 0)
+        {
+            // Add new subscription
+            var newSubscription = new StoreCitySubscription
+                {
+                    StoreId = _subscriptionModel.StoreId,
+                    CityId = _subscriptionModel.CityId,
+                    IsActive = _subscriptionModel.IsActive,
+                    CreatedBy = 1,
+                    CreatedOn = DateTime.Now,
+                    ModifiedBy = 1,
+                    ModifiedOn = DateTime.Now
+                };
+            await StoreCitySubscriptionService.AddAsync(newSubscription);
+        }
+        else
+        {
+            // Update existing subscription
+            var updatedSubscription = new StoreCitySubscription
+                {
+                    StoreCitySubscriptionId = _subscriptionModel.StoreCitySubscriptionId,
+                    StoreId = _subscriptionModel.StoreId,
+                    CityId = _subscriptionModel.CityId,
+                    IsActive = _subscriptionModel.IsActive,
+                    ModifiedBy = 1,
+                    ModifiedOn = DateTime.Now
+                };
+            await StoreCitySubscriptionService.UpdateAsync(updatedSubscription);
+        }
+
+        // Reload the subscription list and clear the form
+        await LoadSubscriptions();
+        ClearForm();
+    }
+
+    private void EditSubscription(StoreCitySubscriptionModel subscription)
+    {
+        // Set the form model to the selected subscription for editing
+        _subscriptionModel = subscription;
+    }
+
+    private async Task DeleteSubscription(int subscriptionId)
+    {
+        await StoreCitySubscriptionService.DeleteAsync(subscriptionId);
+        await LoadSubscriptions(); // Refresh the list after deletion
+    }
+
+    private void ClearForm()
+    {
+        // Reset the form model
+        _subscriptionModel = new StoreCitySubscriptionModel();
+    }
+}

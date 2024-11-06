@@ -1,0 +1,131 @@
+﻿@page "/Bairros"
+@inject ICityService CityService
+@inject INeighborhoodService NeighborhoodService
+@inject IMapper Mapper
+
+<h3 class="text-primary mb-4">Manage Neighborhoods</h3>
+
+<!-- Form to Add or Update Neighborhood -->
+<EditForm Model="_neighborhoodModel" OnValidSubmit="HandleSave">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <label class="form-label">Neighborhood Name</label>
+        <InputText @bind-Value="_neighborhoodModel.NeighborhoodName" class="form-control" placeholder="Enter Neighborhood Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Neighborhood Name ASCII</label>
+        <InputText @bind-Value="_neighborhoodModel.NeighborhoodNameAscii" class="form-control" placeholder="Enter ASCII Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Longitude</label>
+        <InputNumber @bind-Value="_neighborhoodModel.Longitude" class="form-control" placeholder="Enter Longitude" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Latitude</label>
+        <InputNumber @bind-Value="_neighborhoodModel.Latitude" class="form-control" placeholder="Enter Latitude" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">City</label>
+        <select class="form-select" @bind="_neighborhoodModel.CityId">
+            <option value="">Select City</option>
+            @foreach (var city in _cities)
+            {
+                <option value="@city.CityId">@city.CityName</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@(_neighborhoodModel.NeighborhoodId == 0 ? "Add Neighborhood" : "Update Neighborhood")</button>
+    <button type="button" class="btn btn-secondary mt-3 ms-2" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+<hr />
+
+<!-- List of Neighborhoods -->
+<h4 class="mt-4">Neighborhood List</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Neighborhood Name</th>
+            <th>City</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var neighborhood in _neighborhoods)
+        {
+            <tr>
+                <td>@neighborhood.NeighborhoodName</td>
+                <td>@_cities.FirstOrDefault(c => c.CityId == neighborhood.CityId)?.CityName</td>
+                <td>
+                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditNeighborhood(neighborhood)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteNeighborhood(neighborhood.NeighborhoodId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private NeighborhoodModel _neighborhoodModel = new NeighborhoodModel();
+    private List<NeighborhoodModel> _neighborhoods = new List<NeighborhoodModel>();
+    private List<CityModel> _cities = new List<CityModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCities();
+        await LoadNeighborhoods();
+    }
+
+    private async Task LoadNeighborhoods()
+    {
+        var neighborhoods = await NeighborhoodService.GetAllAsync();
+        _neighborhoods = Mapper.Map<List<NeighborhoodModel>>(neighborhoods);
+    }
+
+    private async Task LoadCities()
+    {
+        var cities = await CityService.GetAllAsync();
+        _cities = Mapper.Map<List<CityModel>>(cities);
+    }
+
+    private async Task HandleSave()
+    {
+        if (_neighborhoodModel.NeighborhoodId == 0)
+        {
+            // Add new neighborhood
+            var newNeighborhood = Mapper.Map<Neighborhood>(_neighborhoodModel);
+            await NeighborhoodService.AddAsync(newNeighborhood);
+        }
+        else
+        {
+            // Update existing neighborhood
+            var updatedNeighborhood = Mapper.Map<Neighborhood>(_neighborhoodModel);
+            await NeighborhoodService.UpdateAsync(updatedNeighborhood);
+        }
+
+        // Reload the neighborhood list and clear the form
+        await LoadNeighborhoods();
+        ClearForm();
+    }
+
+    private void EditNeighborhood(NeighborhoodModel neighborhood)
+    {
+        // Map the selected NeighborhoodModel to _neighborhoodModel for editing
+        _neighborhoodModel = Mapper.Map<NeighborhoodModel>(neighborhood);
+    }
+
+    private async Task DeleteNeighborhood(int neighborhoodId)
+    {
+        await NeighborhoodService.DeleteAsync(neighborhoodId);
+        await LoadNeighborhoods(); // Refresh the list after deletion
+    }
+
+    private void ClearForm()
+    {
+        // Reset the form model
+        _neighborhoodModel = new NeighborhoodModel();
+    }
+}

@@ -1,0 +1,65 @@
+﻿@inject IMapper Mapper
+@inject SettingsService SettingsService
+@inject NavigationManager NavigationManager
+@inject IStoreAddressService StoreAddressService
+
+
+
+<SearchZipCodeModule />
+
+@* <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="card p-4" style="width: 350px;">
+        <h3 class="text-center mb-4">Create Store Address</h3>
+
+        <EditForm Model="_storeAddressModel" OnValidSubmit="HandleCreateAddress">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" />
+
+            <div class="form-group mb-3">
+                <label for="streetId" class="form-label">Street ID:</label>
+                <InputNumber hidden id="streetId" @bind-Value="_storeAddressModel.StreetId" class="form-control form-control-sm" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="complement" class="form-label">Complement:</label>
+                <InputText id="complement" @bind-Value="_storeAddressModel.Complement" class="form-control form-control-sm" />
+            </div>
+
+
+            <button type="submit" class="btn btn-primary w-100">Create Address</button>
+        </EditForm>
+    </div>
+</div>
+ *@
+@* @if (_createdAddress != null)
+{
+    <h3 class="mt-5 text-center">Created Address</h3>
+    <div class="card p-3 mx-auto" style="width: 350px;">
+        <p><strong>Address ID:</strong> @_createdAddress.StoreAddressId</p>
+        <p><strong>Street ID:</strong> @_createdAddress.StreetId</p>
+        <p><strong>Complement:</strong> @_createdAddress.Complement</p>
+        <p><strong>Complement ASCII:</strong> @_createdAddress.ComplementAscii</p>
+        <p><strong>Longitude:</strong> @_createdAddress.Longitude</p>
+        <p><strong>Latitude:</strong> @_createdAddress.Latitude</p>
+    </div>
+} *@
+
+@code {
+    private StoreAddressModel _storeAddressModel = new StoreAddressModel();
+    private StoreAddress? _createdAddress;
+
+    private async Task HandleCreateAddress()
+    {
+        // Map StoreAddressModel to StoreAddress
+        var storeAddressEntity = Mapper.Map<StoreAddress>(_storeAddressModel);
+
+        // Add the address using the service
+        await StoreAddressService.AddAsync(storeAddressEntity);
+
+        // Retrieve the created address to display it
+        _createdAddress = storeAddressEntity;
+
+        // Clear the form
+        _storeAddressModel = new StoreAddressModel();
+    }
+}

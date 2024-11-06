@@ -1,0 +1,142 @@
+﻿@page "/Ruas"
+@inject IStreetService StreetService
+@inject INeighborhoodService NeighborhoodService
+@inject IMapper Mapper
+
+<h3 class="text-primary mb-4">Manage Streets</h3>
+
+<!-- Form to Add or Update Street -->
+<EditForm Model="_streetModel" OnValidSubmit="HandleSave">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="mb-3">
+        <label class="form-label">Street Name</label>
+        <InputText @bind-Value="_streetModel.StreetName" class="form-control" placeholder="Enter Street Name" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Street Name ASCII</label>
+        <InputText @bind-Value="_streetModel.StreetNameAscii" class="form-control" placeholder="Enter ASCII Name" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Zip Code</label>
+        <InputText @bind-Value="_streetModel.Zipcode" class="form-control" placeholder="Enter Zip Code" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Longitude</label>
+        <InputNumber @bind-Value="_streetModel.Longitude" class="form-control" placeholder="Enter Longitude" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Latitude</label>
+        <InputNumber @bind-Value="_streetModel.Latitude" class="form-control" placeholder="Enter Latitude" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Neighborhood</label>
+        <select class="form-select" @bind="_streetModel.NeighborhoodId">
+            <option value="">Select Neighborhood</option>
+            @foreach (var neighborhood in _neighborhoods)
+            {
+                <option value="@neighborhood.NeighborhoodId">@neighborhood.NeighborhoodName</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@(_streetModel.StreetId == 0 ? "Add Street" : "Update Street")</button>
+    <button type="button" class="btn btn-secondary mt-3 ms-2" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+<hr />
+
+<!-- List of Streets -->
+<h4 class="mt-4">Street List</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Street Name</th>
+            <th>Zip Code</th>
+            <th>Neighborhood</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var street in _streets)
+        {
+            <tr>
+                <td>@street.StreetName</td>
+                <td>@street.Zipcode</td>
+                <td>@_neighborhoods.FirstOrDefault(n => n.NeighborhoodId == street.NeighborhoodId)?.NeighborhoodName</td>
+                <td>
+                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditStreet(street)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteStreet(street.StreetId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private StreetModel _streetModel = new StreetModel(); // Model for the form
+    private List<StreetModel> _streets = new List<StreetModel>(); // List of streets
+    private List<NeighborhoodModel> _neighborhoods = new List<NeighborhoodModel>(); // List of neighborhoods for dropdown
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNeighborhoods();
+        await LoadStreets();
+    }
+
+    private async Task LoadStreets()
+    {
+        var streets = await StreetService.GetAllAsync();
+        _streets = Mapper.Map<List<StreetModel>>(streets);
+    }
+
+    private async Task LoadNeighborhoods()
+    {
+        var neighborhoods = await NeighborhoodService.GetAllAsync();
+        _neighborhoods = Mapper.Map<List<NeighborhoodModel>>(neighborhoods);
+    }
+
+    private async Task HandleSave()
+    {
+        if (_streetModel.StreetId == 0)
+        {
+            // Add new street
+            var newStreet = Mapper.Map<Street>(_streetModel);
+            await StreetService.AddAsync(newStreet);
+        }
+        else
+        {
+            // Update existing street
+            var updatedStreet = Mapper.Map<Street>(_streetModel);
+            await StreetService.UpdateAsync(updatedStreet);
+        }
+
+        // Reload the street list and clear the form
+        await LoadStreets();
+        ClearForm();
+    }
+
+    private void EditStreet(StreetModel street)
+    {
+        // Map the selected StreetModel to _streetModel for editing
+        _streetModel = Mapper.Map<StreetModel>(street);
+    }
+
+    private async Task DeleteStreet(int streetId)
+    {
+        await StreetService.DeleteAsync(streetId);
+        await LoadStreets(); // Refresh the list after deletion
+    }
+
+    private void ClearForm()
+    {
+        // Reset the form model
+        _streetModel = new StreetModel();
+    }
+}
