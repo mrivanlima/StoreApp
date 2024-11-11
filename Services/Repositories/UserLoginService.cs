@@ -1,11 +1,21 @@
 ﻿using Economizze.Library;
 using StoreApp.Services.Interfaces;
+using StoreApp.Services.Repositories;
+using System.Net.Http.Json;
+using System.Net.Http;
+using System.Text.Json;
+using StoreApp.Model;
+using StoreApp.Wrapper;
 
-public class UserLoginService : IUserLoginService
+
+public class UserLoginService : BaseService, IUserLoginService
 {
     private readonly List<UserLogin> _userLogins;
+    private UserLogin? _currentUser;
 
-    public UserLoginService()
+    public UserLoginService(IHttpClientFactory httpClientFactory, 
+                            JsonSerializerOptions jsonSerializerOptions)
+        : base(httpClientFactory, jsonSerializerOptions)
     {
         // Initialize with 3 users, setting CreatedBy during initialization
         _userLogins = new List<UserLogin>
@@ -115,10 +125,29 @@ public class UserLoginService : IUserLoginService
         return Task.CompletedTask;
     }
 
-    public async Task<UserLogin?> GetByUserNameAsync(UserLogin login)
+    public async Task<Result<UserLogin>> GetByUserNameAsync(UserLogin user)
     {
-        var userLogin = await Task.Run(() =>
-            _userLogins.FirstOrDefault(u => u.Username == login.Username && u.PasswordHash == login.PasswordHash));
-        return await Task.FromResult(userLogin);
+        var url = "conta/autenticar";
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("economizze");
+            var response = await httpClient.PostAsJsonAsync(url, user);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                user = JsonSerializer.Deserialize<UserLogin>(jsonResponse, _jsonSerializerOptions)!;
+                _currentUser = user;
+                return Result<UserLogin>.Success(user);
+            }
+            else
+            {
+                return Result<UserLogin>.Failure(jsonResponse);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            return Result<UserLogin>.Failure($"Erro: {ex.Message}");
+        }
     }
 }

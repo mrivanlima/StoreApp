@@ -10,6 +10,7 @@ namespace StoreApp.Services.Repositories
     public class StoreService : IStoreService
     {
         private readonly List<Store> _stores = new();
+        private readonly Store? _store;
         public Store Store { get; set; }
 
         public StoreService()
@@ -21,7 +22,7 @@ namespace StoreApp.Services.Repositories
                 StoreUniqueId = Guid.NewGuid(),
                 StoreName = "Sample Store",
                 StoreNameAscii = "sample_store",
-                StoreAddressId = 101,
+                //StoreAddressId = 101,
                 CreatedBy = 1,
                 CreatedOn = DateTime.Now.AddDays(-30),
                 ModifiedBy = 1,
@@ -61,7 +62,7 @@ namespace StoreApp.Services.Repositories
                 {
                     existingStore.StoreName = entity.StoreName;
                     existingStore.StoreNameAscii = entity.StoreNameAscii;
-                    existingStore.StoreAddressId = entity.StoreAddressId;
+                   // existingStore.StoreAddressId = entity.StoreAddressId;
                     existingStore.ModifiedBy = entity.ModifiedBy;
                     existingStore.ModifiedOn = DateTime.Now;
                 }

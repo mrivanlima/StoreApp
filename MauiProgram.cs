@@ -2,6 +2,8 @@
 using StoreApp.Profiles;
 using StoreApp.Services.Interfaces;
 using StoreApp.Services.Repositories;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace StoreApp
 {
@@ -16,6 +18,13 @@ namespace StoreApp
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
+
+            builder.Services.AddSingleton(new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
 
             builder.Services.AddSingleton<SettingsService>();
             builder.Services.AddScoped<IUserLoginService, UserLoginService>();
@@ -33,6 +42,16 @@ namespace StoreApp
             builder.Services.AddScoped<IStoreQuoteService, StoreQuoteService>();
             builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 
+            builder.Services.AddHttpClient("economizze", config =>
+            {
+                config.BaseAddress = new Uri("https://localhost:7255/api/");
+            });
+            //builder.Services.AddHttpClient("economizze", config =>
+            //{
+            //    config.BaseAddress = new Uri("https://localhost:7255/api/");
+            //});
+            //http://localhost:5240
+            //http://economizze.app/api/
 
 
 
