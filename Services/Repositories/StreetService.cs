@@ -148,12 +148,19 @@ namespace StoreApp.Services.Repositories
             });
         }
 
-        Task<Result<Store>> IService<Street>.AddAsync(Street entity)
+        
+
+        Task<Result<Street>> IService<Street>.AddAsync(Street entity)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<Store>> IService<Street>.GetByIdAsync(int id)
+        Task<Result<Street>> IService<Street>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Street>> IService<Street>.UpdateAsync(Street entity)
         {
             throw new NotImplementedException();
         }

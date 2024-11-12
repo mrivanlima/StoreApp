@@ -5,7 +5,92 @@
 
 
 <div class="p-4 bg-light">
-    @if (_createdStore is null)
+    @if (_storeModel is not null && loadForm == false)
+    {
+        <div class="mt-5">
+            <h4 class="text-primary">Loja</h4>
+            <p><strong>Licença:</strong> @_storeModel.StoreId-@_storeModel.StoreUniqueId</p>
+            <p><strong>Nome da loja:</strong> @_storeModel.StoreName</p>
+            <p><strong>CNPJ:</strong> @_storeModel.Cnpj</p>
+
+            <button class="btn btn-warning mt-2 me-2" @onclick="LoadStoreForEdit">Editar</button>
+            <button class="btn btn-danger mt-2" @onclick="DeleteStore">Excluir</button>
+        </div>
+
+        <hr/>
+
+        <h4 class="text-primary mb-4">Detalhes</h4>
+        <!-- Form for Adding/Editing Store -->
+        <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" />
+
+            <!-- Store ID (Hidden) -->
+            <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
+
+            <div class="mb-3">
+                <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
+            </div>
+
+            <div class="mb-3">
+                <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
+                @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
+            </button>
+        </EditForm>
+
+
+        @* <h3 class="text-primary mb-4">Adicionar Loja</h3>
+            <!-- Form for Adding/Editing Store -->
+            <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="alert alert-danger" />
+
+                <!-- Store ID (Hidden) -->
+                <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
+
+                <div class="mb-3">
+                    <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
+                </div>
+
+                <div class="mb-3">
+                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
+                    @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
+                </button> *@
+    }
+    else
+    {
+        @if (loadForm)
+        {
+            <h3 class="text-primary mb-4">Adicionar Loja</h3>
+            <!-- Form for Adding/Editing Store -->
+            <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="alert alert-danger" />
+
+                <!-- Store ID (Hidden) -->
+                <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
+
+                <div class="mb-3">
+                    <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
+                </div>
+
+                <div class="mb-3">
+                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
+                    @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
+                </button>
+            </EditForm>
+        }
+    }
+    @*  @if (!_isStoreSaved)
     {
        <span>Loading...</span> 
     }
@@ -49,33 +134,54 @@
                 <button class="btn btn-danger mt-2" @onclick="DeleteStore">Excluir</button>
             </div>
         }
-    }
+    } *@
 </div>
 
 @code {
-    private StoreModel _storeModel = new StoreModel();
+    private StoreModel _storeModel = new();
     private Store? _createdStore;
     private bool _isStoreSaved = false;
+    private bool loadForm = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadStore();
+        if (StoreService.currentStore is not null)
+        {
+            _storeModel = Mapper.Map<StoreModel>(StoreService.currentStore);
+            _isStoreSaved = true;
+        }
+        else
+        {
+            var storeId = SettingsService.appSettings.StoreId;
+            if (storeId > 0)
+            {          
+                var store = await StoreService.GetByIdAsync(storeId);
+                if (store.Data is not null)
+                {
+                    _storeModel = Mapper.Map<StoreModel>(store.Data);
+                    _isStoreSaved = true;
+                }
+            }
+        }
     }
 
     private async Task LoadStore()
     {
-        if (StoreService.currentStore is null)
-        {
-            var storeId = SettingsService.appSettings.StoreId;
-            var store = await StoreService.GetByIdAsync(storeId);
-            _createdStore = store.Data;
-            _storeModel = Mapper.Map<StoreModel>(_createdStore);
-        }
-        _createdStore = StoreService.currentStore;
-        if (_createdStore is not null)
-        {
-            _isStoreSaved = true; // If store is found, show details
-        }
+
+        // var storeId = SettingsService.appSettings.StoreId;
+        // var store = await StoreService.GetByIdAsync(storeId);
+        // if(store.Data!.StoreId == storeId)
+        // {
+        //     _storeModel = Mapper.Map<StoreModel>(store.Data);
+        //     _createdStore = StoreService.currentStore;
+        //     _isStoreSaved = true;  
+        // }
+
+
+        // if (_createdStore is not null)
+        // {
+        //     _isStoreSaved = true; // If store is found, show details
+        // }
     }
 
     private async Task HandleSaveStore()
@@ -101,11 +207,11 @@
 
     private void LoadStoreForEdit()
     {
-        if (_createdStore != null)
-        {
-            _storeModel = Mapper.Map<StoreModel>(_createdStore);
-            _isStoreSaved = false; // Show form for editing
-        }
+        var storeEntity = StoreService.UpdateAsync(Mapper.Map<Store>(_storeModel));
+        _storeModel = Mapper.Map<StoreModel>(storeEntity);
+        //var storeEntity = Mapper.Map<StoreModel>(_storeModel);
+        //_storeModel = storeEntity.;
+        loadForm = true; // Show form for editing
     }
 
     private async Task DeleteStore()

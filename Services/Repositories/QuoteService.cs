@@ -104,12 +104,21 @@ namespace StoreApp.Services.Repositories
             await Task.CompletedTask;
         }
 
-        Task<Result<Store>> IService<Quote>.AddAsync(Quote entity)
+        
+
+       
+
+        Task<Result<Quote>> IService<Quote>.AddAsync(Quote entity)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<Store>> IService<Quote>.GetByIdAsync(int id)
+        Task<Result<Quote>> IService<Quote>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Quote>> IService<Quote>.UpdateAsync(Quote entity)
         {
             throw new NotImplementedException();
         }

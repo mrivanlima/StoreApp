@@ -104,12 +104,21 @@ namespace StoreApp.Services.Repositories
             await Task.CompletedTask;
         }
 
-        Task<Result<Store>> IService<Prescription>.AddAsync(Prescription entity)
+        
+
+       
+
+        Task<Result<Prescription>> IService<Prescription>.AddAsync(Prescription entity)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<Store>> IService<Prescription>.GetByIdAsync(int id)
+        Task<Result<Prescription>> IService<Prescription>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Prescription>> IService<Prescription>.UpdateAsync(Prescription entity)
         {
             throw new NotImplementedException();
         }

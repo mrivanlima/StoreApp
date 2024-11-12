@@ -77,20 +77,30 @@ namespace StoreApp.Services.Repositories
             }
         }
 
-        public async Task UpdateAsync(Store entity)
+        public async Task<Result<Store>> UpdateAsync(Store entity)
         {
-            await Task.Run(() =>
+            var url = "store";
+            try
             {
-                var existingStore = _stores.FirstOrDefault(s => s.StoreId == entity.StoreId);
-                if (existingStore != null)
+                var httpClient = _httpClientFactory.CreateClient("economizze");
+                var response = await httpClient.PutAsJsonAsync(url, entity);
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
                 {
-                    existingStore.StoreName = entity.StoreName;
-                    existingStore.StoreNameAscii = entity.StoreNameAscii;
-                   // existingStore.StoreAddressId = entity.StoreAddressId;
-                    existingStore.ModifiedBy = entity.ModifiedBy;
-                    existingStore.ModifiedOn = DateTime.Now;
+                    entity = JsonSerializer.Deserialize<Store>(jsonResponse, _jsonSerializerOptions)!;
+                    currentStore = entity;
+                    return Result<Store>.Success(entity);
                 }
-            });
+                else
+                {
+                    return Result<Store>.Failure(jsonResponse);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Result<Store>.Failure($"Erro: {ex.Message}");
+            }
         }
 
         public async Task DeleteAsync(int id)
@@ -104,5 +114,7 @@ namespace StoreApp.Services.Repositories
                 }
             });
         }
+
+        
     }
 }

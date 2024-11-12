@@ -84,12 +84,19 @@ namespace StoreApp.Services.Repositories
             });
         }
 
-        Task<Result<Store>> IService<StoreAddress>.AddAsync(StoreAddress entity)
+        
+
+        Task<Result<StoreAddress>> IService<StoreAddress>.AddAsync(StoreAddress entity)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<Store>> IService<StoreAddress>.GetByIdAsync(int id)
+        Task<Result<StoreAddress>> IService<StoreAddress>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<StoreAddress>> IService<StoreAddress>.UpdateAsync(StoreAddress entity)
         {
             throw new NotImplementedException();
         }

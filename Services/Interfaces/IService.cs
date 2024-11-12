@@ -8,9 +8,9 @@ namespace StoreApp.Services.Interfaces
     {
         Task<IEnumerable<T>> GetAllAsync();
         //Task<T?> GetByIdAsync(int id);
-        Task<Result<Store>> AddAsync(T entity);
-        Task<Result<Store>> GetByIdAsync(int id);
-        Task UpdateAsync(T entity);
+        Task<Result<T>> AddAsync(T entity);
+        Task<Result<T>> GetByIdAsync(int id);
+        Task<Result<T>> UpdateAsync(T entity);
         Task DeleteAsync(int id);
     }
 }

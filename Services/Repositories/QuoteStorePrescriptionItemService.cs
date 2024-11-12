@@ -119,23 +119,17 @@ namespace StoreApp.Services.Repositories
             throw new NotImplementedException();
         }
 
-
-        public Task AddAsync(QuoteStorePrescription entity)
+        public Task<Result<QuoteStorePrescription>> AddAsync(QuoteStorePrescription entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(QuoteStorePrescription entity)
+        Task<Result<QuoteStorePrescription>> IService<QuoteStorePrescription>.GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<Store>> IService<QuoteStorePrescription>.AddAsync(QuoteStorePrescription entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Result<Store>> IService<QuoteStorePrescription>.GetByIdAsync(int id)
+        public Task<Result<QuoteStorePrescription>> UpdateAsync(QuoteStorePrescription entity)
         {
             throw new NotImplementedException();
         }

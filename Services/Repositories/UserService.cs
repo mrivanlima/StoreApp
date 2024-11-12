@@ -113,12 +113,17 @@ namespace StoreApp.Services.Repositories
             return Task.CompletedTask;
         }
 
-        Task<Result<Store>> IService<User>.AddAsync(User entity)
+        Task<Result<User>> IService<User>.AddAsync(User entity)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<Store>> IService<User>.GetByIdAsync(int id)
+        Task<Result<User>> IService<User>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<User>> IService<User>.UpdateAsync(User entity)
         {
             throw new NotImplementedException();
         }

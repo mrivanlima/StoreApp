@@ -94,12 +94,19 @@ public class UserLoginService : BaseService, IUserLoginService
         }
     }
 
-    Task<Result<Store>> IService<UserLogin>.AddAsync(UserLogin entity)
+    
+
+    Task<Result<UserLogin>> IService<UserLogin>.AddAsync(UserLogin entity)
     {
         throw new NotImplementedException();
     }
 
-    Task<Result<Store>> IService<UserLogin>.GetByIdAsync(int id)
+    Task<Result<UserLogin>> IService<UserLogin>.GetByIdAsync(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<UserLogin>> IService<UserLogin>.UpdateAsync(UserLogin entity)
     {
         throw new NotImplementedException();
     }

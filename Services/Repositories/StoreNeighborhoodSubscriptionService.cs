@@ -104,12 +104,19 @@ namespace StoreApp.Services.Repositories
             });
         }
 
-        Task<Result<Store>> IService<StoreNeighborhoodSubscription>.AddAsync(StoreNeighborhoodSubscription entity)
+        
+
+        Task<Result<StoreNeighborhoodSubscription>> IService<StoreNeighborhoodSubscription>.AddAsync(StoreNeighborhoodSubscription entity)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<Store>> IService<StoreNeighborhoodSubscription>.GetByIdAsync(int id)
+        Task<Result<StoreNeighborhoodSubscription>> IService<StoreNeighborhoodSubscription>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<StoreNeighborhoodSubscription>> IService<StoreNeighborhoodSubscription>.UpdateAsync(StoreNeighborhoodSubscription entity)
         {
             throw new NotImplementedException();
         }
