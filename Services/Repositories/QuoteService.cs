@@ -1,5 +1,6 @@
 ﻿using Economizze.Library;
 using StoreApp.Services.Interfaces;
+using StoreApp.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -101,6 +102,16 @@ namespace StoreApp.Services.Repositories
                 _quotes.Remove(quote);
             }
             await Task.CompletedTask;
+        }
+
+        Task<Result<Store>> IService<Quote>.AddAsync(Quote entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Store>> IService<Quote>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Economizze.Library;
+using StoreApp.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace StoreApp.Services.Interfaces
 {
     public interface IStoreService :IService<Store>
     {
-        public Store Store { get; set; }
+        public Store? currentStore { get; }
+
     }
 }

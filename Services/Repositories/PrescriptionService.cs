@@ -1,5 +1,6 @@
 ﻿using Economizze.Library;
 using StoreApp.Services.Interfaces;
+using StoreApp.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -101,6 +102,16 @@ namespace StoreApp.Services.Repositories
                 _prescriptions.Remove(prescription);
             }
             await Task.CompletedTask;
+        }
+
+        Task<Result<Store>> IService<Prescription>.AddAsync(Prescription entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Store>> IService<Prescription>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 

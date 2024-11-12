@@ -1,56 +1,80 @@
 ﻿using Economizze.Library;
 using StoreApp.Services.Interfaces;
+using StoreApp.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace StoreApp.Services.Repositories
 {
-    public class StoreService : IStoreService
+    public class StoreService : BaseService, IStoreService
     {
-        private readonly List<Store> _stores = new();
-        private readonly Store? _store;
-        public Store Store { get; set; }
+        private readonly List<Store>? _stores;
+        public Store? currentStore { get; private set; }
 
-        public StoreService()
-        {
-            // Optional: Initialize with some sample data
-            _stores.Add(new Store
-            {
-                StoreId = 1,
-                StoreUniqueId = Guid.NewGuid(),
-                StoreName = "Sample Store",
-                StoreNameAscii = "sample_store",
-                //StoreAddressId = 101,
-                CreatedBy = 1,
-                CreatedOn = DateTime.Now.AddDays(-30),
-                ModifiedBy = 1,
-                ModifiedOn = DateTime.Now
-            });
-        }
+
+        public StoreService(IHttpClientFactory httpClientFactory,
+                            JsonSerializerOptions jsonSerializerOptions)
+        : base(httpClientFactory, jsonSerializerOptions)
+        { }
 
         public async Task<IEnumerable<Store>> GetAllAsync()
         {
             return await Task.Run(() => _stores.AsEnumerable());
         }
 
-        public async Task<Store?> GetByIdAsync(int id)
+        public async Task<Result<Store>> GetByIdAsync(int id)
         {
-            return await Task.Run(() => _stores.FirstOrDefault(s => s.StoreId == id));
+            var url = $"store/{id}";
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient("economizze");
+                var response = await httpClient.GetAsync(url);
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+                {
+                    currentStore = JsonSerializer.Deserialize<Store>(jsonResponse, _jsonSerializerOptions)!;
+                    return Result<Store>.Success(currentStore);
+                }
+                else
+                {
+                    return Result<Store>.Failure(jsonResponse);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Result<Store>.Failure($"Erro: {ex.Message}");
+            }
         }
 
-        public async Task AddAsync(Store entity)
+        public async Task<Result<Store>> AddAsync(Store entity)
         {
-            await Task.Run(() =>
+            var url = "store";
+            try
             {
-                entity.StoreId = _stores.Any() ? _stores.Max(s => s.StoreId) + 1 : 1;
-                entity.StoreUniqueId = Guid.NewGuid();
-                entity.CreatedOn = DateTime.Now;
-                entity.ModifiedOn = DateTime.Now;
-                _stores.Add(entity);
-                Store = entity;
-            });
+                var httpClient = _httpClientFactory.CreateClient("economizze");
+                var response = await httpClient.PostAsJsonAsync(url, entity);
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+                {
+                    entity = JsonSerializer.Deserialize<Store>(jsonResponse, _jsonSerializerOptions)!;
+                    currentStore = entity;
+                    return Result<Store>.Success(entity);
+                }
+                else
+                {
+                    return Result<Store>.Failure(jsonResponse);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Result<Store>.Failure($"Erro: {ex.Message}");
+            }
         }
 
         public async Task UpdateAsync(Store entity)

@@ -1,24 +1,24 @@
 ﻿@page "/MainLogin"
 @inject IUserLoginService UserLoginService
-@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
 @inject IMapper Mapper
 
 <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
     <div class="card p-4" style="width: 300px;">
-        <h3 class="text-center">Login</h3>
+        <h3 class="text-center">Entrar</h3>
 
         <EditForm Model="_userLoginModel" OnValidSubmit="HandleLogin">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
             <div class="mb-3">
-                <label for="username" class="form-label">Username:</label>
-                <InputText id="username" @bind-Value="_userLoginModel.Username" class="form-control form-control-sm" />
+                @* <label for="username" class="form-label">Email:</label> *@
+                <InputText id="username" placeholder="Email" @bind-Value="_userLoginModel.Username" class="form-control form-control-sm" />
             </div>
 
             <div class="mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <InputText id="password" @bind-Value="_userLoginModel.PasswordHash" type="password" class="form-control form-control-sm" />
+               @*  <label for="password" class="form-label">Senha:</label> *@
+                <InputText id="password" placeholder="Senha" @bind-Value="_userLoginModel.PasswordHash" type="password" class="form-control form-control-sm" />
             </div>
 
             <button type="submit" class="btn btn-primary w-100">Login</button>
@@ -43,16 +43,14 @@
         // Fetch user from the service using the mapped UserLogin object's username
         var user = await UserLoginService.GetByUserNameAsync(userLogin);
 
-        // Check if user exists and if the password matches
-        if (user != null && user.PasswordHash == userLogin.PasswordHash)
+        if(user.Data is not null)
         {
-            // Successful login
-            Navigation.NavigateTo("Settings"); // Redirect to a dashboard or home page
+            var userModel = Mapper.Map<UserLoginModel>(user.Data);
+            NavigationManager.NavigateTo("Store");
         }
         else
         {
-            // Display an error message
-            _loginMessage = "Invalid username or password.";
+            _loginMessage = user.ErrorMessage;
         }
     }
 }

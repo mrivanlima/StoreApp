@@ -16,64 +16,7 @@ public class UserLoginService : BaseService, IUserLoginService
     public UserLoginService(IHttpClientFactory httpClientFactory, 
                             JsonSerializerOptions jsonSerializerOptions)
         : base(httpClientFactory, jsonSerializerOptions)
-    {
-        // Initialize with 3 users, setting CreatedBy during initialization
-        _userLogins = new List<UserLogin>
-        {
-            new UserLogin
-            {
-                UserId = 1,
-                UserUniqueId = Guid.NewGuid(),
-                Username = "mrivanlima",
-                PasswordHash = "123456",
-                PasswordSalt = "salt1",
-                IsVerified = true,
-                IsActive = true,
-                IsLocked = false,
-                PasswordAttempts = 0,
-                ChangedInitialPassword = true,
-               // CreatedBy = 1,  // Set during initialization
-                CreatedOn = DateTime.Now.AddDays(-30),
-                ModifiedBy = null,
-                ModifiedOn = DateTime.Now
-            },
-            new UserLogin
-            {
-                UserId = 2,
-                UserUniqueId = Guid.NewGuid(),
-                Username = "janedoe",
-                PasswordHash = "hashedpassword2",
-                PasswordSalt = "salt2",
-                IsVerified = true,
-                IsActive = true,
-                IsLocked = false,
-                PasswordAttempts = 0,
-                ChangedInitialPassword = false,
-                //CreatedBy = 1,  // Set during initialization
-                CreatedOn = DateTime.Now.AddDays(-25),
-                ModifiedBy = null,
-                ModifiedOn = DateTime.Now
-            },
-            new UserLogin
-            {
-                UserId = 3,
-                UserUniqueId = Guid.NewGuid(),
-                Username = "alicejohnson",
-                PasswordHash = "hashedpassword3",
-                PasswordSalt = "salt3",
-                IsVerified = false,
-                IsActive = false,
-                IsLocked = true,
-                PasswordAttempts = 3,
-                ChangedInitialPassword = false,
-                LockedTime = DateTime.Now.AddDays(-1),
-                //CreatedBy = 2,  // Set during initialization
-                CreatedOn = DateTime.Now.AddDays(-20),
-                ModifiedBy = null,
-                ModifiedOn = DateTime.Now
-            }
-        };
-    }
+    {}
 
     public Task<IEnumerable<UserLogin>> GetAllAsync()
     {
@@ -149,5 +92,15 @@ public class UserLoginService : BaseService, IUserLoginService
         {
             return Result<UserLogin>.Failure($"Erro: {ex.Message}");
         }
+    }
+
+    Task<Result<Store>> IService<UserLogin>.AddAsync(UserLogin entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<Store>> IService<UserLogin>.GetByIdAsync(int id)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Economizze.Library;
 using StoreApp.Services.Interfaces;
+using StoreApp.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,10 +119,6 @@ namespace StoreApp.Services.Repositories
             throw new NotImplementedException();
         }
 
-        Task<QuoteStorePrescription?> IService<QuoteStorePrescription>.GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task AddAsync(QuoteStorePrescription entity)
         {
@@ -129,6 +126,16 @@ namespace StoreApp.Services.Repositories
         }
 
         public Task UpdateAsync(QuoteStorePrescription entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Store>> IService<QuoteStorePrescription>.AddAsync(QuoteStorePrescription entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Store>> IService<QuoteStorePrescription>.GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }

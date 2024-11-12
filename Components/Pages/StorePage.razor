@@ -4,9 +4,9 @@
 
 <!-- Buttons to show each module -->
 <div class="mb-4">
-    <button class="btn btn-primary me-2" @onclick="ToggleCreateStore">Add Store</button>
-    <button class="btn btn-secondary me-2" @onclick="ToggleSearchZipCode">Search Zip Code</button>
-    <button class="btn btn-success" @onclick="ToggleCreateStorePhone">Add Store Phone</button>
+    <button class="btn btn-primary me-2" @onclick="ToggleCreateStore">Criar Loja</button>
+    <button class="btn btn-secondary me-2" @onclick="ToggleSearchZipCode">Adicionar Endereco</button>
+    <button class="btn btn-success" @onclick="ToggleCreateStorePhone">Adicionar Telefones</button>
 </div>
 
 <!-- Conditionally render each component based on the boolean flags -->
@@ -17,7 +17,7 @@
 
 @if (showSearchZipCode)
 {
-    <SearchZipCodeModule />
+    <ManageAddressModule />
 }
 
 @if (showCreateStorePhone)

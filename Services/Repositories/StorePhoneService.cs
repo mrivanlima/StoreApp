@@ -1,5 +1,6 @@
 ﻿using Economizze.Library;
 using StoreApp.Services.Interfaces;
+using StoreApp.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +78,16 @@ namespace StoreApp.Services.Repositories
                     _storePhones.Remove(storePhone);
                 }
             });
+        }
+
+        Task<Result<Store>> IService<StorePhone>.AddAsync(StorePhone entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<Store>> IService<StorePhone>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
