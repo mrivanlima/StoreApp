@@ -114,10 +114,7 @@ namespace StoreApp.Services.Repositories
             await Task.CompletedTask;
         }
 
-        Task<IEnumerable<QuoteStorePrescription>> IService<QuoteStorePrescription>.GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public Task<Result<QuoteStorePrescription>> AddAsync(QuoteStorePrescription entity)
         {
@@ -130,6 +127,11 @@ namespace StoreApp.Services.Repositories
         }
 
         public Task<Result<QuoteStorePrescription>> UpdateAsync(QuoteStorePrescription entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<IEnumerable<StoreType>>> IService<QuoteStorePrescription>.GetAllAsync()
         {
             throw new NotImplementedException();
         }

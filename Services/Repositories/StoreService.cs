@@ -115,6 +115,9 @@ namespace StoreApp.Services.Repositories
             });
         }
 
-        
+        Task<Result<IEnumerable<StoreType>>> IService<Store>.GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

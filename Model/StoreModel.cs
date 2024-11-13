@@ -12,6 +12,8 @@ namespace StoreApp.Model
         public int StoreId { get; set; }
         public Guid StoreUniqueId { get; set; }
 
+        public short StoreTypeId { get; set; }
+
         [Required(ErrorMessage = "CNPJ")]
         public string Cnpj { get; set; } = string.Empty;
 

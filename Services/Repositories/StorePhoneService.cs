@@ -96,5 +96,10 @@ namespace StoreApp.Services.Repositories
         {
             throw new NotImplementedException();
         }
+
+        Task<Result<IEnumerable<StoreType>>> IService<StorePhone>.GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

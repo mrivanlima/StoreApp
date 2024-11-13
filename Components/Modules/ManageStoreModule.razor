@@ -1,229 +1,125 @@
 ﻿@inject SettingsService SettingsService
 @inject NavigationManager Navigation
 @inject IStoreService StoreService
+@inject IStoreTypeService StoreTypeService
 @inject IMapper Mapper
 
 
 <div class="p-4 bg-light">
-    @if (_storeModel is not null && loadForm == false)
+    @if (_storeModel is not null)
     {
-        <div class="mt-5">
-            <h4 class="text-primary">Loja</h4>
-            <p><strong>Licença:</strong> @_storeModel.StoreId-@_storeModel.StoreUniqueId</p>
-            <p><strong>Nome da loja:</strong> @_storeModel.StoreName</p>
-            <p><strong>CNPJ:</strong> @_storeModel.Cnpj</p>
-
-            <button class="btn btn-warning mt-2 me-2" @onclick="LoadStoreForEdit">Editar</button>
-            <button class="btn btn-danger mt-2" @onclick="DeleteStore">Excluir</button>
-        </div>
-
-        <hr/>
-
-        <h4 class="text-primary mb-4">Detalhes</h4>
-        <!-- Form for Adding/Editing Store -->
-        <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="alert alert-danger" />
-
-            <!-- Store ID (Hidden) -->
-            <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
-
-            <div class="mb-3">
-                <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
-            </div>
-
-            <div class="mb-3">
-                <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
-            </div>
-
-            <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
-                @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
-            </button>
-        </EditForm>
-
-
-        @* <h3 class="text-primary mb-4">Adicionar Loja</h3>
-            <!-- Form for Adding/Editing Store -->
-            <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="alert alert-danger" />
-
-                <!-- Store ID (Hidden) -->
-                <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
-
-                <div class="mb-3">
-                    <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
-                </div>
-
-                <div class="mb-3">
-                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
-                </div>
-
-                <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
-                    @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
-                </button> *@
-    }
-    else
-    {
-        @if (loadForm)
+        @if (!DisplayForm)
         {
-            <h3 class="text-primary mb-4">Adicionar Loja</h3>
-            <!-- Form for Adding/Editing Store -->
-            <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="alert alert-danger" />
-
-                <!-- Store ID (Hidden) -->
-                <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
-
-                <div class="mb-3">
-                    <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
-                </div>
-
-                <div class="mb-3">
-                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
-                </div>
-
-                <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
-                    @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
-                </button>
-            </EditForm>
-        }
-    }
-    @*  @if (!_isStoreSaved)
-    {
-       <span>Loading...</span> 
-    }
-    else
-    {
-
-        @if (!_isStoreSaved)
-        {
-            <h3 class="text-primary mb-4">Adicionar Loja</h3>
-            <!-- Form for Adding/Editing Store -->
-            <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="alert alert-danger" />
-
-                <!-- Store ID (Hidden) -->
-                <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
-
-                <div class="mb-3">
-                    <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
-                </div>
-
-                <div class="mb-3">
-                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
-                </div>
-
-                <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
-                    @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
-                </button>
-            </EditForm>
-        }
-        else
-        {
-            <!-- Store Details Section -->
             <div class="mt-5">
                 <h4 class="text-primary">Loja</h4>
-                <p><strong>Licença:</strong> @_createdStore.StoreId-@_createdStore.StoreUniqueId</p>
-                <p><strong>Nome da loja:</strong> @_createdStore.StoreName</p>
-                <p><strong>CNPJ:</strong> @_createdStore.Cnpj</p>
-
-                <button class="btn btn-warning mt-2 me-2" @onclick="LoadStoreForEdit">Editar</button>
-                <button class="btn btn-danger mt-2" @onclick="DeleteStore">Excluir</button>
+                <p><strong>Loja:</strong> @_storeModel.StoreName</p>
+                <p><strong>CNPJ:</strong> @_storeModel.Cnpj</p>
+                <p><strong>Tipo:</strong> @_storeTypeName</p>
+                <p><strong>Licença:</strong> @_storeModel.StoreId-@_storeModel.StoreUniqueId</p>
             </div>
+            <button class="btn btn-warning mt-2 me-2" @onclick="DisplayFormClick">Editar</button>
         }
-    } *@
+
+        else
+        {
+            <h4 class="text-primary mb-4">Detalhes</h4>
+            <EditForm Model="_storeModel" OnValidSubmit="HandleSaveStore">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="alert alert-danger" />
+
+                <!-- Store ID (Hidden) -->
+                <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
+
+                <div class="mb-3">
+                    <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
+                </div>
+
+                <div class="mb-3">
+                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
+                </div>
+
+                <div class="mb-3">
+                    <InputSelect id="storeType" @bind-Value="_storeModel.StoreTypeId" @bind-Value:after="TypeChanged"
+                                 class="form-control form-control-sm rounded"
+                                 style="width: 50%;">
+                        @foreach (var storeType in _storeTypes)
+                        {
+                            <option value="@storeType.StoreTypeId">@storeType.StoreTypeName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
+                    @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
+                </button>
+            </EditForm>
+        }
+    }
 </div>
 
 @code {
     private StoreModel _storeModel = new();
+    private List<StoreTypeModel>? _storeTypes = new();
     private Store? _createdStore;
-    private bool _isStoreSaved = false;
-    private bool loadForm = false;
+    private bool DisplayForm = false;
+    private string _storeTypeName = "";
+
 
     protected override async Task OnInitializedAsync()
     {
+        var results = await StoreTypeService.GetAllAsync();
+        _storeTypes = Mapper.Map<List<StoreTypeModel>>(results.Data);
         if (StoreService.currentStore is not null)
         {
             _storeModel = Mapper.Map<StoreModel>(StoreService.currentStore);
-            _isStoreSaved = true;
         }
         else
         {
+
             var storeId = SettingsService.appSettings.StoreId;
             if (storeId > 0)
-            {          
+            {
                 var store = await StoreService.GetByIdAsync(storeId);
                 if (store.Data is not null)
                 {
                     _storeModel = Mapper.Map<StoreModel>(store.Data);
-                    _isStoreSaved = true;
                 }
             }
         }
+        SetStoreDetails();
     }
 
-    private async Task LoadStore()
+    private void SetStoreDetails()
     {
+        _storeTypeName = _storeTypes?.FirstOrDefault(t => t.StoreTypeId == _storeModel.StoreTypeId)?.StoreTypeName ?? string.Empty;
+    }
 
-        // var storeId = SettingsService.appSettings.StoreId;
-        // var store = await StoreService.GetByIdAsync(storeId);
-        // if(store.Data!.StoreId == storeId)
-        // {
-        //     _storeModel = Mapper.Map<StoreModel>(store.Data);
-        //     _createdStore = StoreService.currentStore;
-        //     _isStoreSaved = true;  
-        // }
-
-
-        // if (_createdStore is not null)
-        // {
-        //     _isStoreSaved = true; // If store is found, show details
-        // }
+    public void TypeChanged()
+    {
+        SetStoreDetails();
     }
 
     private async Task HandleSaveStore()
     {
         var storeEntity = Mapper.Map<Store>(_storeModel);
-
         if (_storeModel.StoreId == 0)
         {
             await StoreService.AddAsync(storeEntity);
+            _storeModel = Mapper.Map<StoreModel>(storeEntity);
+            SetStoreDetails();
         }
         else
         {
             await StoreService.UpdateAsync(storeEntity);
+            _storeModel = Mapper.Map<StoreModel>(storeEntity);
+            DisplayFormClick();
+            SetStoreDetails();
         }
-
-        // Store saved successfully
         _createdStore = storeEntity;
-        _isStoreSaved = true;
-
-        // Clear the form model
-        _storeModel = new StoreModel();
     }
 
-    private void LoadStoreForEdit()
+    private void DisplayFormClick()
     {
-        var storeEntity = StoreService.UpdateAsync(Mapper.Map<Store>(_storeModel));
-        _storeModel = Mapper.Map<StoreModel>(storeEntity);
-        //var storeEntity = Mapper.Map<StoreModel>(_storeModel);
-        //_storeModel = storeEntity.;
-        loadForm = true; // Show form for editing
-    }
-
-    private async Task DeleteStore()
-    {
-        if (_createdStore != null)
-        {
-            await StoreService.DeleteAsync(_createdStore.StoreId);
-            _createdStore = null;
-
-            // Clear the form after deletion
-            _storeModel = new StoreModel();
-            _isStoreSaved = false; // Show form for adding new store
-        }
+        DisplayForm = !DisplayForm;
     }
 }

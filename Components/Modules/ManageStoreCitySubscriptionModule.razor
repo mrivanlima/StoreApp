@@ -86,37 +86,37 @@
     private async Task LoadStores()
     {
         var stores = await StoreService.GetAllAsync();
-        _stores = stores.Select(store => new StoreModel
-            {
-                StoreId = store.StoreId,
-                StoreName = store.StoreName
-            }).ToList();
+        // _stores = stores.Select(store => new StoreModel
+        //     {
+        //         StoreId = store.StoreId,
+        //         StoreName = store.StoreName
+        //     }).ToList();
     }
 
     private async Task LoadCities()
     {
         var cities = await CityService.GetAllAsync();
-        _cities = cities.Select(city => new CityModel
-            {
-                CityId = city.CityId,
-                CityName = city.CityName
-            }).ToList();
+        // _cities = cities.Select(city => new CityModel
+        //     {
+        //         CityId = city.CityId,
+        //         CityName = city.CityName
+        //     }).ToList();
     }
 
     private async Task LoadSubscriptions()
     {
         var subscriptions = await StoreCitySubscriptionService.GetAllAsync();
-        _subscriptions = subscriptions.Select(sub => new StoreCitySubscriptionModel
-            {
-                StoreCitySubscriptionId = sub.StoreCitySubscriptionId,
-                StoreId = sub.StoreId,
-                CityId = sub.CityId,
-                IsActive = sub.IsActive,
-                CreatedBy = sub.CreatedBy,
-                CreatedOn = sub.CreatedOn,
-                ModifiedBy = sub.ModifiedBy,
-                ModifiedOn = sub.ModifiedOn
-            }).ToList();
+        // _subscriptions = subscriptions.Select(sub => new StoreCitySubscriptionModel
+        //     {
+        //         StoreCitySubscriptionId = sub.StoreCitySubscriptionId,
+        //         StoreId = sub.StoreId,
+        //         CityId = sub.CityId,
+        //         IsActive = sub.IsActive,
+        //         CreatedBy = sub.CreatedBy,
+        //         CreatedOn = sub.CreatedOn,
+        //         ModifiedBy = sub.ModifiedBy,
+        //         ModifiedOn = sub.ModifiedOn
+        //     }).ToList();
     }
 
     private async Task HandleSave()

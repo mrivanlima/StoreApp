@@ -110,4 +110,9 @@ public class UserLoginService : BaseService, IUserLoginService
     {
         throw new NotImplementedException();
     }
+
+    Task<Result<IEnumerable<StoreType>>> IService<UserLogin>.GetAllAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

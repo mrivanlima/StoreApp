@@ -122,6 +122,11 @@ namespace StoreApp.Services.Repositories
         {
             throw new NotImplementedException();
         }
+
+        Task<Result<IEnumerable<StoreType>>> IService<Prescription>.GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

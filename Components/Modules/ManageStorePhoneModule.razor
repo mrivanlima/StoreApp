@@ -82,7 +82,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
+        // StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
     }
 
     private async Task HandleSave()
@@ -101,7 +101,7 @@
         }
 
         // Refresh list and reset form
-        StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
+        // StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
         StorePhoneModel = new StorePhoneModel();
     }
 
@@ -114,6 +114,6 @@
     private async Task DeleteStorePhone(int id)
     {
         await StorePhoneService.DeleteAsync(id);
-        StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
+        // StorePhones = (await StorePhoneService.GetAllAsync()).ToList();
     }
 }

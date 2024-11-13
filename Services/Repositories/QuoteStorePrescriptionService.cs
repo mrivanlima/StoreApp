@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace StoreApp.Services.Repositories
 {
-    public class QuoteStorePrescriptionService :IQuoteStorePrescriptionService
+    public class QuoteStorePrescriptionService : IQuoteStorePrescriptionService
     {
         private static List<QuoteStorePrescription> _prescriptions = new List<QuoteStorePrescription>
     {
@@ -102,6 +102,11 @@ namespace StoreApp.Services.Repositories
         }
 
         Task<Result<QuoteStorePrescription>> IService<QuoteStorePrescription>.UpdateAsync(QuoteStorePrescription entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Result<IEnumerable<StoreType>>> IService<QuoteStorePrescription>.GetAllAsync()
         {
             throw new NotImplementedException();
         }

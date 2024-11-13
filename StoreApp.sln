@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreApp", "StoreApp.csproj", "{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Economizze.Library", "..\..\API\Economizze.Library\Economizze.Library.csproj", "{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Economizze.Library", "..\API\Economizze.Library\Economizze.Library.csproj", "{1F67AFAA-BBC8-4B03-9BCD-62CD2475222E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +19,10 @@ Global
 		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E6A92CAD-CEB4-4071-9F73-118976E3E2DE}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38B5FB18-019B-48CF-AB59-EEFB63CCBD3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F67AFAA-BBC8-4B03-9BCD-62CD2475222E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F67AFAA-BBC8-4B03-9BCD-62CD2475222E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F67AFAA-BBC8-4B03-9BCD-62CD2475222E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F67AFAA-BBC8-4B03-9BCD-62CD2475222E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

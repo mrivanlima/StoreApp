@@ -41,6 +41,7 @@ namespace StoreApp
             builder.Services.AddScoped<IQuoteService, QuoteService>();
             builder.Services.AddScoped<IStoreQuoteService, StoreQuoteService>();
             builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+            builder.Services.AddScoped<IStoreTypeService, StoreTypeService>();
 
             builder.Services.AddHttpClient("economizze", config =>
             {

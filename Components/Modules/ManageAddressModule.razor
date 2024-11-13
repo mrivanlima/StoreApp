@@ -134,8 +134,8 @@
     {
         // Retrieve the current address for the store using StoreId from SettingsService
         var storeId = SettingsService.appSettings.StoreId;
-        _currentStoreAddress = (await StoreAddressService.GetAllAsync())
-            .LastOrDefault(sa => sa.StoreId == storeId); // Assuming the most recent address
+        // _currentStoreAddress = (await StoreAddressService.GetAllAsync())
+        //     .LastOrDefault(sa => sa.StoreId == storeId); // Assuming the most recent address
     }
 
     private void EditCurrentAddress()
