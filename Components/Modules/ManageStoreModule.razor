@@ -6,7 +6,7 @@
 
 
 <div class="p-4 bg-light">
-    @if (_storeModel is not null)
+    @if (_storeModel.StoreId != 0 || DisplayForm)
     {
         @if (!DisplayForm)
         {
@@ -54,6 +54,10 @@
                 </button>
             </EditForm>
         }
+    }
+    else
+    {
+        <span><b>Carregando...</b></span>
     }
 </div>
 
