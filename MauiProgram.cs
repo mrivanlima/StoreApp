@@ -27,21 +27,21 @@ namespace StoreApp
             });
 
             builder.Services.AddSingleton<SettingsService>();
-            builder.Services.AddScoped<IUserLoginService, UserLoginService>();
-            builder.Services.AddScoped<IStoreService, StoreService>();
-            builder.Services.AddScoped<IStoreAddressService, StoreAddressService>();
-            builder.Services.AddScoped<IStreetService, StreetService>();
-            builder.Services.AddScoped<IStreetDetailService, StreetDetailService>();
-            builder.Services.AddScoped<IStorePhoneService, StorePhoneService>();
-            builder.Services.AddScoped<IStateService, StateService>();
-            builder.Services.AddScoped<ICityService, CityService>();
-            builder.Services.AddScoped<INeighborhoodService, NeighborhoodService>();
-            builder.Services.AddScoped<IStoreNeighborhoodSubscriptionService, StoreNeighborhoodSubscriptionService>();
-            builder.Services.AddScoped<IStoreCitySubscriptionService, StoreCitySubscriptionService>();
-            builder.Services.AddScoped<IQuoteService, QuoteService>();
-            builder.Services.AddScoped<IStoreQuoteService, StoreQuoteService>();
-            builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
-            builder.Services.AddScoped<IStoreTypeService, StoreTypeService>();
+            builder.Services.AddSingleton<IUserLoginService, UserLoginService>();
+            builder.Services.AddSingleton<IStoreService, StoreService>();
+            builder.Services.AddSingleton<IStoreAddressService, StoreAddressService>();
+            builder.Services.AddSingleton<IStreetService, StreetService>();
+            builder.Services.AddSingleton<IStreetDetailService, StreetDetailService>();
+            builder.Services.AddSingleton<IStorePhoneService, StorePhoneService>();
+            builder.Services.AddSingleton<IStateService, StateService>();
+            builder.Services.AddSingleton<ICityService, CityService>();
+            builder.Services.AddSingleton<INeighborhoodService, NeighborhoodService>();
+            builder.Services.AddSingleton<IStoreNeighborhoodSubscriptionService, StoreNeighborhoodSubscriptionService>();
+            builder.Services.AddSingleton<IStoreCitySubscriptionService, StoreCitySubscriptionService>();
+            builder.Services.AddSingleton<IQuoteService, QuoteService>();
+            builder.Services.AddSingleton<IStoreQuoteService, StoreQuoteService>();
+            builder.Services.AddSingleton<IPrescriptionService, PrescriptionService>();
+            builder.Services.AddSingleton<IStoreTypeService, StoreTypeService>();
 
             builder.Services.AddHttpClient("economizze", config =>
             {

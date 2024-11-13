@@ -43,6 +43,7 @@ namespace StoreApp
         {
             var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(_filePath, json);
+            appSettings = settings;
         }
     }
 }

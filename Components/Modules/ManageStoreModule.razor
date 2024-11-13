@@ -60,9 +60,11 @@
 @code {
     private StoreModel _storeModel = new();
     private List<StoreTypeModel>? _storeTypes = new();
+    private AppSettings? _settings = new();
     private Store? _createdStore;
     private bool DisplayForm = false;
     private string _storeTypeName = "";
+    private string? _storeUniqueIdString;
 
 
     protected override async Task OnInitializedAsync()
@@ -85,6 +87,11 @@
                     _storeModel = Mapper.Map<StoreModel>(store.Data);
                 }
             }
+            else
+            {
+                DisplayFormClick();
+
+            }
         }
         SetStoreDetails();
     }
@@ -104,18 +111,35 @@
         var storeEntity = Mapper.Map<Store>(_storeModel);
         if (_storeModel.StoreId == 0)
         {
-            await StoreService.AddAsync(storeEntity);
-            _storeModel = Mapper.Map<StoreModel>(storeEntity);
-            SetStoreDetails();
+            storeEntity.StoreUniqueId = Guid.NewGuid();
+            var results = await StoreService.AddAsync(storeEntity);
+            _storeModel = Mapper.Map<StoreModel>(results.Data);   
         }
         else
         {
             await StoreService.UpdateAsync(storeEntity);
             _storeModel = Mapper.Map<StoreModel>(storeEntity);
-            DisplayFormClick();
-            SetStoreDetails();
         }
         _createdStore = storeEntity;
+        await SaveSettings();
+        SetStoreDetails();
+        DisplayFormClick();
+    }
+
+    private async Task SaveSettings()
+    {
+        DateTime today = DateTime.Now;
+        DateTime oneYearFromToday = today.AddYears(1);
+        _settings.AppVersion = "1.0.0";
+        _settings.StoreUniqueId = _storeModel.StoreUniqueId;
+        _settings.StoreId = _storeModel.StoreId;
+        _settings.EndDate = oneYearFromToday;
+        _settings.StoreName = _storeModel.StoreName;
+        _settings.VersionDate = DateTime.Now;
+        _settings.StartDate = today;
+        _settings.IsActive = true;
+
+        await SettingsService.SaveSettingsAsync(_settings);
     }
 
     private void DisplayFormClick()
