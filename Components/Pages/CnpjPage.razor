@@ -1,5 +1,6 @@
 ﻿@page "/cnpj"
 @inject ICnpjService CnpjService
+@inject IStoreJsonService StoreJsonService
 
 <h3>CNPJ Search</h3>
 
@@ -30,6 +31,7 @@
     private string? cnpjResponse;
     private string? errorMessage;
     private bool isLoading = false;
+    private StoreJson storeJson = new();
 
     private async Task SearchCnpjAsync()
     {
@@ -44,6 +46,10 @@
             isLoading = true;
             errorMessage = null;
             cnpjResponse = await CnpjService.GetCnpjDataAsync(cnpjInput);
+            storeJson.StoreCnpj = cnpjInput;
+            storeJson.StoreJsonString = cnpjResponse;
+            
+            var addtodb = StoreJsonService.AddAsync(storeJson);
         }
         catch (Exception ex)
         {

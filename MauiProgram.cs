@@ -44,8 +44,9 @@ namespace StoreApp
             builder.Services.AddSingleton<IStoreTypeService, StoreTypeService>();
 
             builder.Services.AddTransient<ICnpjService, CnpjService>();
+            builder.Services.AddTransient<IStoreJsonService, StoreJsonService>();
 
-            
+
 
             builder.Services.AddHttpClient("economizze", config =>
             {
