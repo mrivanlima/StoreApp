@@ -43,6 +43,10 @@ namespace StoreApp
             builder.Services.AddSingleton<IPrescriptionService, PrescriptionService>();
             builder.Services.AddSingleton<IStoreTypeService, StoreTypeService>();
 
+            builder.Services.AddTransient<ICnpjService, CnpjService>();
+
+            
+
             builder.Services.AddHttpClient("economizze", config =>
             {
                 config.BaseAddress = new Uri("https://localhost:7255/api/");

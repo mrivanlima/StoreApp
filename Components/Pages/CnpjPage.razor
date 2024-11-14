@@ -1,0 +1,57 @@
+﻿@page "/cnpj"
+@inject ICnpjService CnpjService
+
+<h3>CNPJ Search</h3>
+
+<div class="mb-3">
+    <label for="cnpjInput">Enter CNPJ:</label>
+    <input type="text" @bind="cnpjInput" id="cnpjInput" class="form-control" placeholder="Enter CNPJ without special characters" />
+</div>
+
+<button @onclick="SearchCnpjAsync" class="btn btn-primary">Search</button>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (cnpjResponse != null)
+{
+    <pre>@cnpjResponse</pre>
+}
+
+@code {
+    private string cnpjInput = string.Empty;
+    private string? cnpjResponse;
+    private string? errorMessage;
+    private bool isLoading = false;
+
+    private async Task SearchCnpjAsync()
+    {
+        if (string.IsNullOrWhiteSpace(cnpjInput))
+        {
+            errorMessage = "Please enter a valid CNPJ.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            cnpjResponse = await CnpjService.GetCnpjDataAsync(cnpjInput);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
