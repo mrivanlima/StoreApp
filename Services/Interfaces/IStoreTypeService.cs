@@ -9,5 +9,6 @@ namespace StoreApp.Services.Interfaces
 {
     public interface IStoreTypeService : IService<StoreType>
     {
+        List<StoreType> _storeTypes { get; set; }
     }
 }

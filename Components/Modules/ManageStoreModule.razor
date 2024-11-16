@@ -4,7 +4,6 @@
 @inject IStoreTypeService StoreTypeService
 @inject IMapper Mapper
 
-
 <div class="p-4 bg-light">
     @if (_storeModel.StoreId != 0 || DisplayForm)
     {
@@ -19,7 +18,6 @@
             </div>
             <button class="btn btn-warning mt-2 me-2" @onclick="DisplayFormClick">Editar</button>
         }
-
         else
         {
             <h4 class="text-primary mb-4">Detalhes</h4>
@@ -31,17 +29,20 @@
                 <InputNumber id="storeId" @bind-Value="_storeModel.StoreId" style="display: none;" />
 
                 <div class="mb-3">
-                    <InputText id="storeName" @bind-Value="_storeModel.StoreName" class="form-control form-control-sm rounded" placeholder="Nome da Loja" style="width: 50%;" />
+                    <InputText id="storeName" @bind-Value="_storeModel.StoreName"
+                               class="form-control form-control-sm rounded"
+                               placeholder="Nome da Loja" style="width: 50%;" />
                 </div>
 
                 <div class="mb-3">
-                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj" class="form-control form-control-sm rounded" placeholder="CNPJ" style="width: 50%;" />
+                    <InputText id="cnpj" @bind-Value="_storeModel.Cnpj"
+                               class="form-control form-control-sm rounded"
+                               placeholder="CNPJ" style="width: 50%;" />
                 </div>
 
                 <div class="mb-3">
                     <InputSelect id="storeType" @bind-Value="_storeModel.StoreTypeId" @bind-Value:after="TypeChanged"
-                                 class="form-control form-control-sm rounded"
-                                 style="width: 50%;">
+                                 class="form-control form-control-sm rounded" style="width: 50%;">
                         @foreach (var storeType in _storeTypes)
                         {
                             <option value="@storeType.StoreTypeId">@storeType.StoreTypeName</option>
@@ -49,7 +50,11 @@
                     </InputSelect>
                 </div>
 
-                <button type="submit" class="btn btn-primary mt-3 rounded" style="width: 50%;">
+                <!-- Conditional button color based on changes -->
+                <button type="submit"
+                        class="btn mt-3 rounded"
+                        style="width: 50%; background-color: @(HasChanges() ? "green" : "grey"); color: white;"
+                        disabled="@(HasChanges() ? false : true)">
                     @(_storeModel.StoreId == 0 ? "Salvar" : "Atualizar")
                 </button>
             </EditForm>
@@ -63,25 +68,30 @@
 
 @code {
     private StoreModel _storeModel = new();
+    private StoreModel? _originalStoreModel = null; 
     private List<StoreTypeModel>? _storeTypes = new();
     private AppSettings? _settings = new();
     private Store? _createdStore;
     private bool DisplayForm = false;
     private string _storeTypeName = "";
-    private string? _storeUniqueIdString;
-
 
     protected override async Task OnInitializedAsync()
     {
-        var results = await StoreTypeService.GetAllAsync();
-        _storeTypes = Mapper.Map<List<StoreTypeModel>>(results.Data);
+        // Load store types if not already loaded
+        if (StoreTypeService._storeTypes is null)
+        {
+            var results = await StoreTypeService.GetAllAsync();
+            _storeTypes = Mapper.Map<List<StoreTypeModel>>(results.Data);
+        }
+
+        // Load current store data if available
         if (StoreService.currentStore is not null)
         {
             _storeModel = Mapper.Map<StoreModel>(StoreService.currentStore);
+            _storeTypes = Mapper.Map<List<StoreTypeModel>>(StoreTypeService._storeTypes);
         }
         else
         {
-
             var storeId = SettingsService.appSettings.StoreId;
             if (storeId > 0)
             {
@@ -94,9 +104,19 @@
             else
             {
                 DisplayFormClick();
-
             }
         }
+
+        // Create a clone of the original model for change detection
+        _originalStoreModel = new StoreModel
+            {
+                StoreId = _storeModel.StoreId,
+                StoreName = _storeModel.StoreName,
+                Cnpj = _storeModel.Cnpj,
+                StoreTypeId = _storeModel.StoreTypeId,
+                StoreUniqueId = _storeModel.StoreUniqueId
+            };
+
         SetStoreDetails();
     }
 
@@ -110,45 +130,59 @@
         SetStoreDetails();
     }
 
+    private bool HasChanges()
+    {
+        // Compare the current model with the original to detect changes
+        return _originalStoreModel != null &&
+               (_storeModel.StoreName != _originalStoreModel.StoreName ||
+                _storeModel.Cnpj != _originalStoreModel.Cnpj ||
+                _storeModel.StoreTypeId != _originalStoreModel.StoreTypeId);
+    }
+
     private async Task HandleSaveStore()
     {
+        if (!HasChanges())
+        {
+            return; // No changes, no need to submit
+        }
+
         var storeEntity = Mapper.Map<Store>(_storeModel);
         if (_storeModel.StoreId == 0)
         {
             storeEntity.StoreUniqueId = Guid.NewGuid();
             var results = await StoreService.AddAsync(storeEntity);
-            _storeModel = Mapper.Map<StoreModel>(results.Data);   
+            _storeModel = Mapper.Map<StoreModel>(results.Data);
         }
         else
         {
             await StoreService.UpdateAsync(storeEntity);
             _storeModel = Mapper.Map<StoreModel>(storeEntity);
         }
+
         _createdStore = storeEntity;
-        await SaveSettings();
+        await SaveSettings(storeEntity);
+
+        // Update the original model after saving
+        _originalStoreModel = new StoreModel
+            {
+                StoreId = _storeModel.StoreId,
+                StoreName = _storeModel.StoreName,
+                Cnpj = _storeModel.Cnpj,
+                StoreTypeId = _storeModel.StoreTypeId,
+                StoreUniqueId = _storeModel.StoreUniqueId
+            };
+
         SetStoreDetails();
         DisplayFormClick();
     }
 
-    private async Task SaveSettings()
+    private async Task SaveSettings(Store storeEntity)
     {
-        DateTime today = DateTime.Now;
-        DateTime oneYearFromToday = today.AddYears(1);
-        _settings.AppVersion = "1.0.0";
-        _settings.StoreUniqueId = _storeModel.StoreUniqueId;
-        _settings.StoreId = _storeModel.StoreId;
-        _settings.EndDate = oneYearFromToday;
-        _settings.StoreName = _storeModel.StoreName;
-        _settings.VersionDate = DateTime.Now;
-        _settings.StartDate = today;
-        _settings.IsActive = true;
-
-        await SettingsService.SaveSettingsAsync(_settings);
+        await SettingsService.SaveSettingsByStoreAsync(storeEntity);
     }
 
     private void DisplayFormClick()
     {
         DisplayForm = !DisplayForm;
     }
-    //https://publica.cnpj.ws/cnpj/NUMERO_DO_CNPJ_SEM_CARACTERES_ESPECIAIS
 }

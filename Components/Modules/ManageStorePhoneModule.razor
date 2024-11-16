@@ -94,7 +94,7 @@
             // Add new StorePhone
             var storePhone = Mapper.Map<StorePhone>(StorePhoneModel);
             _settings = await SettingsService.LoadSettingsAsync();
-            await SettingsService.SaveSettingsAsync(_settings);
+           // await SettingsService.SaveSettingsAsync(_settings);
             await StorePhoneService.AddAsync(storePhone);
         }
         else

@@ -13,6 +13,7 @@ namespace StoreApp.Services.Repositories
 {
     public class StoreTypeService : BaseService, IStoreTypeService
     {
+        public List<StoreType> _storeTypes {get; set;}
         public StoreTypeService(IHttpClientFactory httpClientFactory, 
                                 JsonSerializerOptions jsonSerializerOptions) : base(httpClientFactory, jsonSerializerOptions){}
 
@@ -38,6 +39,7 @@ namespace StoreApp.Services.Repositories
                 if (response.IsSuccessStatusCode)
                 {
                     storeTypes = JsonSerializer.Deserialize<List<StoreType>>(jsonResponse, _jsonSerializerOptions)!;
+                    _storeTypes = storeTypes;
                 }
             }
             catch (Exception ex)
